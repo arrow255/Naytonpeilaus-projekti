@@ -6,8 +6,12 @@ function App() {
   return (
     <>
       <h1>Näytönpeilaus projekti</h1>
-      <Link to="/client">client</Link>
-      <Link to="/host">host</Link>
+      <Link to='/host'>
+        <button>Host</button>
+      </Link>
+      <Link to='/client'>
+        <button>Client</button>
+      </Link>
     </>
   )
 }
