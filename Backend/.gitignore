@@ -4,3 +4,7 @@ dist/
 build/
 .env
 venv
+env
+.pytest_cache
+
+
