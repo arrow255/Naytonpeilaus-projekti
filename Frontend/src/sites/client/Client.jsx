@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import "./client.css"
 
 const Client = () => {
     return (
@@ -9,6 +10,7 @@ const Client = () => {
                     Back
                 </button>
             </Link>
+            <button>Request To Share Screen</button>
         </>
     )
 }
