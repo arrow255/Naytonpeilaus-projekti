@@ -7,12 +7,12 @@ function App() {
     <>
       <h1>Näytönpeilaus projekti</h1>
       
-      <Link to='/host'>
-        <button>Host</button>
+      <Link to='/create_room'>
+        <button>Create Room</button>
       </Link>
 
-      <Link to='/client'>
-        <button>Client</button>
+      <Link to='/join_room'>
+        <button>Join Room</button>
       </Link>
     </>
   )
