@@ -1,25 +1,33 @@
 import { Link } from "react-router-dom"
 import { useState } from "react"
+import Screen from '../../components/Screen/Screen.jsx'
+import servers from "../utils.js"
+
 import './host.css'
 
-const Screen = ({shareScreen}) => {
-    if (shareScreen) {
-        return <div id='videoContainer'><video id='videoContainer' poster='https://media1.tenor.com/m/ZdsIbPaZn64AAAAC/verycat-cateat.gif' autoPlay></video></div>
-    }
-    
-    return <div id='videoContainer'></div>
-}
-
-const buttonText = (shareScreen) => {
-  if (shareScreen) {
+const buttonText = (remoteStream) => {
+  if (remoteStream) {
     return 'Hide stream'
   }
   return "Show Stream"
 }
 
-
 const Host = () => {
-  const [shareScreen, changeShareScreen] = useState(false);
+  let RTC = new RTCPeerConnection(servers)
+  const [remoteStream, setRemoteStream] = useState(null)
+
+  const receiveVideo = () => {
+    if (remoteStream) return setRemoteStream(null)
+
+    // Get tracks from remote stream, add to video stream
+    setRemoteStream(new MediaStream())
+
+    RTC.ontrack = event => {
+        event.streams[0].getTracks().forEach(track => {
+            remoteStream.addTrack(track)
+        });
+      }
+  }
 
   return (
     <>
@@ -28,9 +36,9 @@ const Host = () => {
         <button>Back</button>
       </Link>
 
-      <button onClick={() => changeShareScreen(!shareScreen)}>{buttonText(shareScreen)}</button>
+      <button onClick={() => receiveVideo()}>{buttonText(remoteStream)}</button>
 
-      <Screen shareScreen={shareScreen}></Screen>
+      <Screen stream={remoteStream}></Screen>
     </>
   )
 }
