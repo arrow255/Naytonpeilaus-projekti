@@ -151,8 +151,9 @@ Client sends:
   "type": "RCP_OFFER",
   "sdp": "offer data"
 }
+```
 
-Currently server forwards as:
+Server forwards the request to host:
 ```json
 {
   "type": "RCP_OFFER",
@@ -169,6 +170,7 @@ Host sends:
   "sdp": "answer data"
 }
 ```
+
 Server forwards the request to the user:
 ```json
 {
@@ -186,7 +188,7 @@ Client sends:
 }
 ```
 
-Server forwards as:
+Server forwards the request to host:
 ```json
 {
   "type": "ICE_CANDIDATE",
@@ -203,6 +205,7 @@ Host sends:
   "candidate": "candidate data"
 }
 ```
+
 Server forwards the request to the user:
 ```json
 { 
