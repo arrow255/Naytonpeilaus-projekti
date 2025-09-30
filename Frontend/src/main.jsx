@@ -1,6 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { WebSocketProvider } from "./components/WebSocketContext/WebSocketContext.jsx"
 
 // Sites
 import Client from "./sites/client/Client"
@@ -9,17 +10,18 @@ import CreateRoom from "./sites/createRoom/CreateRoom"
 import JoinRoom from "./sites/joinRoom/JoinRoom"
 import App from "./App.jsx"
 
-
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  <WebSocketProvider>
+    <StrictMode>
       <BrowserRouter>
         <Routes>
-          <Route path='/host' element={<Host />} />
-          <Route path='/client' element={<Client />} />
+          <Route path='/host/:roomID' element={<Host />} />
+          <Route path='/room/:roomID' element={<Client />} />
           <Route path='/' element={<App />} />
-          <Route path='/create_room' element={<CreateRoom/>}/>
-          <Route path='/join_room' element={<JoinRoom/>}/>
+          <Route path='/create_room' element={<CreateRoom />} />
+          <Route path='/join_room' element={<JoinRoom />} />
         </Routes>
       </BrowserRouter>
-  </StrictMode>
+    </StrictMode>
+  </WebSocketProvider>
 )
