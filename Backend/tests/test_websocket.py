@@ -120,3 +120,50 @@ def test_user_leaves_room(create_room):
     assert host_notification["type"] == "USER_LEFT"
     assert host_notification["username"] == "student-name"
 
+def test_user_sends_rcp_offer(join_room):
+    roomid, host_ws, student_ws = join_room
+    student_ws.send_json({
+        "type": "RCP_OFFER",
+        "sdp": "sdp-data",
+    })
+    host_notification = host_ws.receive_json()
+    assert host_notification["type"] == "RCP_OFFER"
+    assert host_notification["sdp"] == "sdp-data"
+    assert host_notification["username"] == "student-name"
+
+def test_host_sends_rcp_answer(join_room):
+    roomid, host_ws, student_ws = join_room
+    host_ws.send_json({
+        "type": "RCP_ANSWER",
+        "sdp": "sdp-data",
+        "username": "student-name"
+    })
+    student_notification = student_ws.receive_json()
+    assert student_notification["type"] == "RCP_ANSWER"
+    assert student_notification["sdp"] == "sdp-data"
+    assert 'username' not in student_notification
+
+def test_user_sends_ice_candidate(join_room):
+    roomid, host_ws, student_ws = join_room
+    student_ws.send_json({
+        "type": "ICE_CANDIDATE",
+        "candidate": "candidate-data",
+    })
+    host_notification = host_ws.receive_json()
+    assert host_notification["type"] == "ICE_CANDIDATE"
+    assert host_notification["candidate"] == "candidate-data"
+    assert host_notification["username"] == "student-name"
+
+def test_host_sends_ice_candidate(join_room):
+    roomid, host_ws, student_ws = join_room
+    host_ws.send_json({
+        "type": "ICE_CANDIDATE",
+        "candidate": "candidate-data",
+        "username": "student-name"
+    })
+    student_notification = student_ws.receive_json()
+    assert student_notification["type"] == "ICE_CANDIDATE"
+    assert student_notification["candidate"] == "candidate-data"
+    assert 'username' not in student_notification
+
+

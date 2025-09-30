@@ -135,6 +135,29 @@ async def handle_connection(ws: WebSocket, user_id: str):
                     await room.users[target_user].send_json({"type": "ALLOW_SHARING"})
                 else:
                     await ws.send_json({"type": "ERROR", "message": "User not found"})
+            elif msg_type == "RCP_OFFER":
+                sdp_data = data.get("sdp")
+                await room.send_host({"type": "RCP_OFFER", "sdp": sdp_data, "username": ws.name})
+            elif msg_type == "RCP_ANSWER":
+                target_user = data.get("username")
+                if target_user in room.users:
+                    sdp_data = data.get("sdp")
+                    await room.users[target_user].send_json({"type": "RCP_ANSWER", "sdp": sdp_data})
+                else:
+                    await ws.send_json({"type": "ERROR", "message": "User not found"})
+            elif msg_type == "ICE_CANDIDATE":
+                if ws == room.host:
+                    target_user = data.get("username")
+                    if target_user in room.users:
+                        candidate_data = data.get("candidate")
+                        await room.users[target_user].send_json({"type": "ICE_CANDIDATE", "candidate": candidate_data})
+                    else:
+                        await ws.send_json({"type": "ERROR", "message": "User not found"})
+                else:
+                    candidate_data = data.get("candidate")
+                    await room.send_host({"type": "ICE_CANDIDATE", "candidate": candidate_data, "username": ws.name})
+            else:
+                logger.debug(f"Unknown message type: {msg_type}")
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
     finally:

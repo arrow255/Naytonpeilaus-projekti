@@ -61,7 +61,7 @@ Server responds:
 ```json
 {
   "type": "ROOM_CREATED",
-  "roomid": "room-id",
+  "roomid": "room-id"
 }
 ```
 
@@ -93,7 +93,7 @@ Server notifies host:
 Client sends:
 ```json
 {
-  "type": "REQUEST_SHARING",
+  "type": "REQUEST_SHARING"
 }
 ```
 Server forwards the request to host:
@@ -108,13 +108,13 @@ Server forwards the request to host:
 Client sends:
 ```json
 {
-  "type": "STOP_SHARING",
+  "type": "STOP_SHARING"
 }
 ```
 Currently, if sender is the host, server broadcasts to all users:
 ```json
 {
-  "type": "STOP_SHARING",
+  "type": "STOP_SHARING"
 }
 ```
 In the future this will most likely be changed to only notify the user who was sharing.
@@ -139,13 +139,74 @@ Host sends:
 Server forwards the request to the user:
 ```json
 {
-  "type": "ALLOW_SHARING",
+  "type": "ALLOW_SHARING"
 }
 ```
 
+### RCP Messages
 
+Client sends:
+```json
+{
+  "type": "RCP_OFFER",
+  "sdp": "offer data"
+}
 
+Currently server forwards as:
+```json
+{
+  "type": "RCP_OFFER",
+  "username": "my-name",
+  "sdp": "offer data"
+}
+```
 
+Host sends:
+```json
+{
+  "type": "RCP_ANSWER",
+  "username": "my-name",
+  "sdp": "answer data"
+}
+```
+Server forwards the request to the user:
+```json
+{
+  "type": "RCP_ANSWER",
+  "sdp": "answer data"
+}
+```
 
+### ICE Candidate Messages
+Client sends:
+```json
+{
+  "type": "ICE_CANDIDATE",
+  "candidate": "candidate data",
+}
+```
 
+Server forwards as:
+```json
+{
+  "type": "ICE_CANDIDATE",
+  "username": "my-name",
+  "candidate": "candidate data"
+}
+```
 
+Host sends:
+```json
+{
+  "type": "ICE_CANDIDATE",
+  "username": "my-name",
+  "candidate": "candidate data"
+}
+```
+Server forwards the request to the user:
+```json
+{ 
+  "type": "ICE_CANDIDATE",
+  "candidate": "candidate data"
+}
+```
