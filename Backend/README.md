@@ -21,7 +21,7 @@ pytest
 # Documentation
 Currently, only supports websocket endpoint on ws://localhost:8000/ws
 
-The 'my-name' in documentation is referring to the user who wants to share screen. Host name does not matter and user does not need to know it.
+The 'client-name' in documentation is referring to the user who wants to share screen. Host name does not matter and user does not need to know it.
 Host name should be made known to the user only if we want to display it in the UI.
 
 ## Currently implemented messages
@@ -57,7 +57,7 @@ Client sends:
 ```json
 {
   "type": "CREATE_ROOM",
-  "username": "my-name"
+  "username": "host-name"
 }
 ```
 Server responds:
@@ -74,7 +74,7 @@ Client sends:
 {
   "type": "JOIN_ROOM",
   "roomid": "room-id",
-  "username": "my-name"
+  "username": "client-name"
 }
 ```
 Server responds:
@@ -88,7 +88,7 @@ Server notifies host:
 ```json
 {
   "type": "USER_JOINED",
-  "username": "my-name"
+  "username": "client-name"
 }
 ```
 
@@ -103,7 +103,7 @@ Server forwards the request to host:
 ```json
 {
   "type": "REQUEST_SHARING",
-  "username": "my-name"
+  "username": "client-name"
 }
 ```
 
@@ -127,7 +127,7 @@ If sender is not the host, server forwards the request to host:
 ```json
 {
   "type": "STOP_SHARING",
-  "username": "my-name"
+  "username": "client-name"
 }
 ```
 
@@ -136,7 +136,7 @@ Host sends:
 ```json
 {
   "type": "ALLOW_SHARING",
-  "username": "my-name"
+  "username": "client-name"
 }
 ```
 Server forwards the request to the user:
@@ -160,7 +160,7 @@ Server forwards the request to host:
 ```json
 {
   "type": "RCP_OFFER",
-  "username": "my-name",
+  "username": "client-name",
   "sdp": "offer data"
 }
 ```
@@ -169,7 +169,7 @@ Host sends:
 ```json
 {
   "type": "RCP_ANSWER",
-  "username": "my-name",
+  "username": "client-name",
   "sdp": "answer data"
 }
 ```
@@ -195,7 +195,7 @@ Server forwards the request to host:
 ```json
 {
   "type": "ICE_CANDIDATE",
-  "username": "my-name",
+  "username": "client-name",
   "candidate": "candidate data"
 }
 ```
@@ -204,7 +204,7 @@ Host sends:
 ```json
 {
   "type": "ICE_CANDIDATE",
-  "username": "my-name",
+  "username": "client-name",
   "candidate": "candidate data"
 }
 ```
