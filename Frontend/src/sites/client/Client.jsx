@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom"
 import "./client.css"
-import servers from "../utils";
 import { useState } from "react";
 import Screen from '../../components/Screen/Screen.jsx'
 
 const Client = () => {
-    let RTC = new RTCPeerConnection(servers);
+    let RTC = new RTCPeerConnection();
     const [localStream, setLocalStream] = useState(null);
     const [buttonText, setButtonText] = useState('Request Screen Share')
 
