@@ -21,6 +21,9 @@ pytest
 # Documentation
 Currently, only supports websocket endpoint on ws://localhost:8000/ws
 
+The 'my-name' in documentation is referring to the user who wants to share screen. Host name does not matter and user does not need to know it.
+Host name should be made known to the user only if we want to display it in the UI.
+
 ## Currently implemented messages
 
 ### Errors
