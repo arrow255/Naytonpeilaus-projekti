@@ -1,4 +1,4 @@
-from fastapi import WebSocket
+from fastapi import WebSocket, WebSocketDisconnect
 import logging
 import random
 import string
@@ -78,9 +78,11 @@ async def handle_connection(ws: WebSocket, user_id: str):
     await ws.accept()
     room_manager = ws.app.state.room_manager
     room = None
+    logger.debug(f"WebSocket connected: {ws.user_id}")
     try:
         while True:
             data = await ws.receive_json()
+            logger.debug(f"Received data from {ws.user_id}: {data}")
             msg_type = data.get("type")
             if msg_type == "CREATE_ROOM":
                 username = data.get("username").strip().lower()
@@ -158,6 +160,8 @@ async def handle_connection(ws: WebSocket, user_id: str):
                     await room.send_host({"type": "ICE_CANDIDATE", "candidate": candidate_data, "username": ws.name})
             else:
                 logger.debug(f"Unknown message type: {msg_type}")
+    except WebSocketDisconnect:
+        logger.info(f"WebSocket disconnected: {ws.user_id}")
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
     finally:

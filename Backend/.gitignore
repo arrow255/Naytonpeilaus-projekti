@@ -6,5 +6,6 @@ build/
 venv
 env
 .pytest_cache
+test.http
 
 
