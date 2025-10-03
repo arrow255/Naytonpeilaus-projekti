@@ -1,5 +1,5 @@
 from fastapi import APIRouter, WebSocket
-from app.core.rooms import handle_connection
+from app.core.connection_handler import handle_connection
 from uuid import uuid4
 
 ws_router = APIRouter()
