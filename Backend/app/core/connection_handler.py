@@ -61,12 +61,12 @@ async def handle_connection(ws: WebSocket, user_id: str):
                 await ws.send_json({"type": "ERROR", "message": "You must join a room first"})
                 continue
             if msg_type == "REQUEST_SHARING":
-                await user.room.send_host({"type": "REQUEST_SHARING", "username": ws.name})
+                await user.room.send_host({"type": "REQUEST_SHARING", "username": user.name})
             elif msg_type == "STOP_SHARING":
                 if user.room.host == ws:
                     await user.room.broadcast({"type": "STOP_SHARING"})
                 else:
-                    await user.room.send_host({"type": "STOP_SHARING", "username": ws.name})
+                    await user.room.send_host({"type": "STOP_SHARING", "username": user.name})
             elif msg_type == "ALLOW_SHARING":
                 target_user = data.get("username")
                 if target_user in user.room.users:
@@ -75,7 +75,7 @@ async def handle_connection(ws: WebSocket, user_id: str):
                     await ws.send_json({"type": "ERROR", "message": "User not found"})
             elif msg_type == "RCP_OFFER":
                 sdp_data = data.get("sdp")
-                await user.room.send_host({"type": "RCP_OFFER", "sdp": sdp_data, "username": ws.name})
+                await user.room.send_host({"type": "RCP_OFFER", "sdp": sdp_data, "username": user.name})
             elif msg_type == "RCP_ANSWER":
                 target_user = data.get("username")
                 if target_user in user.room.users:
@@ -93,7 +93,7 @@ async def handle_connection(ws: WebSocket, user_id: str):
                         await ws.send_json({"type": "ERROR", "message": "User not found"})
                 else:
                     candidate_data = data.get("candidate")
-                    await user.room.send_host({"type": "ICE_CANDIDATE", "candidate": candidate_data, "username": ws.name})
+                    await user.room.send_host({"type": "ICE_CANDIDATE", "candidate": candidate_data, "username": user.name})
             else:
                 logger.debug(f"Unknown message type: {msg_type}")
     except WebSocketDisconnect:
