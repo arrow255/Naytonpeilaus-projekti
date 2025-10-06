@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
+import handleRCPOffer from "./handle_messages.js"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
 import { Link } from "react-router-dom"
+import servers from "../../components/utils.js"
 
 // Styling
 import "./host.css"
@@ -16,13 +18,29 @@ const buttonText = (remoteStream) => {
   return "Show Stream"
 }
 
+
 const Host = () => {
-  let RTC = new RTCPeerConnection()
+  const [RTC, _] = useState(new RTCPeerConnection(servers))
+
   const [remoteStream, setRemoteStream] = useState(null)
-  const { _sendMessage, messages } = useWebSocket()
+  const { sendMessage, messages } = useWebSocket()
 
   const [users, setUsers] = useState([])
+  // TODO const [streamingUser, setStreamingUser] = useState(null)
   const { roomID } = useParams()
+
+  useEffect(() => {
+    // Ajetaan sovellukseen tultaessa
+    RTC.onicecandidate = (event) => {
+      if (event.candidate) {
+        sendMessage({
+          type: "ICE_CANDIDATE",
+          username: 'Kalle',
+          candidate: event.candidate,
+        })
+      }
+    }
+  })
 
   useEffect(() => {
     if (messages.length < 1) return // Ei vielä viestejä käsiteltäväksi
@@ -30,27 +48,40 @@ const Host = () => {
     // Katsotaan viesti joka saapui
     const last = messages[messages.length - 1]
 
-    if (last.type == "USER_JOINED") {
-      setUsers((prevUsers) => [...prevUsers, last.username]);
-    }
+    switch(last.type) {
+      case "USER_JOINED":
+        setUsers((prevUsers) => [...prevUsers, last.username]) 
+        break
 
-    if (last.type == "USER_LEFT") {
-      setUsers((prevUsers) => prevUsers.filter((u) => u !== last.username));
-    }
+      case "USER_LEFT":
+        setUsers((prevUsers) => prevUsers.filter((u) => u !== last.username))
+        break
 
+      case "RCP_OFFER":
+        handleRCPOffer(RTC, last, sendMessage)
+        break
+      
+      case "ICE_CANDIDATE":
+        RTC.addIceCandidate(new RTCIceCandidate(last.candidate))
+        break
+
+      default:
+        console.log("Unknown message type: ", last.type)
+      }
   }, [messages])
 
   const receiveVideo = () => {
-    if (remoteStream) return setRemoteStream(null)
-
+    // TODO This function doesn't work, It hides stream but it doesn't show up again
+    if (remoteStream) return setRemoteStream(null) 
+    
     // Get tracks from remote stream, add to video stream
-    setRemoteStream(new MediaStream())
+    const stream = new MediaStream()
 
     RTC.ontrack = (event) => {
-      event.streams[0].getTracks().forEach((track) => {
-        remoteStream.addTrack(track)
-      })
+      event.streams[0].getTracks().forEach((track) => stream.addTrack(track))
     }
+
+    setRemoteStream(stream)
   }
 
   return (
