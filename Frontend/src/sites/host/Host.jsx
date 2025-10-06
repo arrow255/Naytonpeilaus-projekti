@@ -31,13 +31,13 @@ const renderUser = (user, handleAnswer) => {
   )
 }
 
-
 const Host = () => {
   const [remoteStream, setRemoteStream] = useState(null)
   const { sendMessage, messages } = useWebSocket()
 
   const [users, setUsers] = useState([])
   const { roomID } = useParams()
+
 
   useEffect(() => {
     if (messages.length < 1) return // Ei vielä viestejä käsiteltäväksi
@@ -86,7 +86,9 @@ const Host = () => {
   }
 
   const handleAnswer = (answer, user) => {
-    if (!answer) return
+    if (!answer) {
+      console.log(user.RTC.connectionState)
+    }
     
     // Get tracks from remote stream, add to video stream
     const stream = new MediaStream()
@@ -106,9 +108,7 @@ const Host = () => {
       }
     }
 
-
-
-
+    // Show clients stream
     setRemoteStream(stream)
 
     // Send RCP Offer
@@ -116,9 +116,6 @@ const Host = () => {
 
     // Add all ICE candidates to Users RTC 
     user.PendingICEcandidates.forEach((c) => user.RTC.addIceCandidate(new RTCIceCandidate(c)));
-
-    console.log(user.RTC.connectionState)
-    console.log(remoteStream)
   }
 
   return (

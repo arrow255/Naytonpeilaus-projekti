@@ -1,13 +1,14 @@
-import React, { useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import "./screen.css"
 
 const Screen = ({ stream }) => {
   const videoRef = useRef(null)
 
-  if (videoRef.current) {
-      videoRef.current.srcObject = stream || null
-  }
-
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream
+    }
+  }, [stream])
 
   if (stream) {
     return (

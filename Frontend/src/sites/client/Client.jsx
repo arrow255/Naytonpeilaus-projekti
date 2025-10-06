@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
-import { useMemo } from "react"
+import { useRef } from "react"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
@@ -9,21 +9,21 @@ import Screen from "../../components/Screen/Screen.jsx"
 // Styling
 import "./client.css"
 
-// Probably not necessary, CLIENT might send ICE after offer
-const pendingCandidates = [];
-
-
 const Client = () => {
-  const RTC = useMemo(() => new RTCPeerConnection(), [])
+  const RTC = useRef(null)
+  const pendingCandidates = useRef([])
 
   const [localStream, setLocalStream] = useState(null)
   const [buttonText, setButtonText] = useState("Request Screen Share")
   const { sendMessage, messages } = useWebSocket()
 
-
   useEffect(() => {
-    // Start sending ICE candidates as we start the app
-    RTC.onicecandidate = (event) => {
+    // Initialize RTC connection
+    if (!RTC.current) {
+      RTC.current = new RTCPeerConnection()
+
+      // Setup ICE candidate handler
+      RTC.onicecandidate = (event) => {
         if (event.candidate) {
           sendMessage({
             type: "ICE_CANDIDATE",
@@ -31,9 +31,8 @@ const Client = () => {
           })
         }
       }
-
-  })
-
+    }
+  }, [sendMessage])
 
   useEffect(() => {
     if (messages.length < 1) return // Not yet message for reading
@@ -42,87 +41,100 @@ const Client = () => {
     const last = messages[messages.length - 1]
 
     if (last.type == "RCP_ANSWER") {
-      async function handleAnswer() {
-        const receivedOffer = new RTCSessionDescription({type: "answer", sdp: last.sdp,})
-
-        await RTC.setRemoteDescription(receivedOffer)
-
-        // Apply any ICE candidates received before the remote description
-        pendingCandidates.forEach((c) => RTC.addIceCandidate(new RTCIceCandidate(c)));
-        pendingCandidates.length = 0;
-      }
-
-      handleAnswer()
+      handleAnswer(last)
     }
 
     if (last.type == "ICE_CANDIDATE") {
-      if (RTC.remoteDescription && RTC.remoteDescription.type) {
-        RTC.addIceCandidate(new RTCIceCandidate(last.candidate))
-      } else {
-        // Buffer the candidate until remote description is set
-        pendingCandidates.push(last.candidate);
-      }
-
+      handleICEcandidate(last.candidate)
     }
-
   }, [messages, RTC, sendMessage])
+
+  async function handleAnswer(answer) {
+    const receivedOffer = new RTCSessionDescription({
+      type: "answer",
+      sdp: answer.sdp,
+    })
+
+    await RTC.current.setRemoteDescription(receivedOffer)
+
+    // Apply any ICE candidates received before the remote description
+    for (const candidate of pendingCandidates.current) {
+      await RTC.current.addIceCandidate(new RTCIceCandidate(candidate))
+    }
+    pendingCandidates.current = []
+  }
+
+  function handleICEcandidate(candidate) {
+    if (RTC.current.remoteDescription) {
+      // Add the candidate to RTC
+      RTC.current.addIceCandidate(new RTCIceCandidate(candidate))
+    } else {
+      // Buffer the candidate until remote description is set
+      pendingCandidates.current.push(candidate)
+    }
+  }
 
   const controlVideoSharing = async () => {
     // User wants to stop the stream
     if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop())
+      localStream.getTracks().forEach((track) => {
+        track.stop()
+
+        // Remove track from peer connection
+        const senders = RTC.current.getSenders()
+        const sender = senders.find((s) => s.track === track)
+        if (sender) {
+          RTC.current.removeTrack(sender)
+        }
+      })
       setLocalStream(null)
       setButtonText("Request Screen Share")
       return
     }
 
-    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
-
-    // Init the ICE candidate event
-    RTC.onicecandidate = (event) => {
-      if (event.candidate) {
-        sendMessage({
-          type: "ICE_CANDIDATE",
-          candidate: event.candidate,
-        })
-      }
-    }
-
-
-    // Push tracks from Local stream to peer connection
-    stream.getTracks().forEach((track) => {
-      RTC.addTrack(track, stream)
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+      audio: true,
     })
 
+    console.log("Got media stream:", stream.id)
 
-    // Create Offer
-    const offerDescription = await RTC.createOffer()
-    await RTC.setLocalDescription(offerDescription)
+    // Set the local stream so user sees his stream
+    setLocalStream(stream)
+    setButtonText("Stop Screen Share")
+
+    // Add tracks from Local stream to peer connection
+    stream.getTracks().forEach((track) => {
+      RTC.current.addTrack(track, stream)
+    })
+
+    // Create Offer and send offer
+    const offerDescription = await RTC.current.createOffer()
+    await RTC.current.setLocalDescription(offerDescription)
 
     const offer = {
       type: "RCP_OFFER",
       sdp: offerDescription.sdp,
     }
 
-
-    // Update screen
-    setLocalStream(stream)
-    setButtonText("Stop Screen Share")
-
     // Send offer to other party
     sendMessage(offer)
 
-
-    // Checks if the stream is stopped by other means
+    // Handle stream ending (user stops sharing via browser UI)
     stream.getVideoTracks().forEach((track) => {
       track.onended = () => {
         setLocalStream(null)
         setButtonText("Request Screen Share")
+
+        // Remove all tracks from peer connection
+        const senders = RTC.current.getSenders()
+        senders.forEach((sender) => {
+          if (sender.track) {
+            RTC.current.removeTrack(sender)
+          }
+        })
       }
     })
-
-    console.log("Got local stream:", stream)
-    console.log("React State Stream:", localStream)
   }
 
   return (
