@@ -1,17 +1,18 @@
-async function handleRCPOffer(RTC, lastMessage, sendMessage) {
+async function handleRCPOffer(user, sendMessage) {
     // Luodaan RCP vastaus ja lähetetään
     const receivedOffer = new RTCSessionDescription({
         type: "offer",
-        sdp: lastMessage.sdp,
+        sdp: user.sdp,
     })
-    await RTC.setRemoteDescription(receivedOffer)
+    
+    await user.RTC.setRemoteDescription(receivedOffer)
 
-    const answer = await RTC.createAnswer()
-    await RTC.setLocalDescription(answer)
+    const answer = await user.RTC.createAnswer()
+    await user.RTC.setLocalDescription(answer)
 
     sendMessage({
         type: "RCP_ANSWER",
-        username: lastMessage.username,
+        username: user.username,
         sdp: answer.sdp,
     })
 }

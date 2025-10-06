@@ -6,51 +6,38 @@ import handleRCPOffer from "./handle_messages.js"
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
 import { Link } from "react-router-dom"
-import { useMemo } from "react"
 
 // Styling
 import "./host.css"
 
-const buttonText = (remoteStream) => {
-  if (remoteStream) {
-    return "Hide stream"
-  }
-  return "Show Stream"
-}
 
-const renderUser = (user) => {
-  if (!user.wantsToStream) { return <div><p key={user.username}>{user.username}</p></div> }
+const renderUser = (user, handleAnswer) => {
+  const username = user.username
+
+  if (!user.wantsToStream) {
+    return (
+      <div key={username}>
+        <p>{username}</p>
+      </div>
+    )
+  }
+
   return (
-    <div>
-      <p key={user.username}>{user.username}</p>
-      <button>Accept</button>
-      <button>Decline</button>
+    <div key={username}>
+      <p>{username}</p>
+      <button onClick={() => handleAnswer(true, user)}>Accept</button>
+      <button onClick={() => handleAnswer(false, user)}>Decline</button>
     </div>
   )
 }
 
-const Host = () => {
-  const RTC = useMemo(() => new RTCPeerConnection(), [])
 
+const Host = () => {
   const [remoteStream, setRemoteStream] = useState(null)
   const { sendMessage, messages } = useWebSocket()
 
   const [users, setUsers] = useState([])
-  // const [streamingUser, setStreamingUser] = useState(null)
   const { roomID } = useParams()
-
-  useEffect(() => {
-    // Ajetaan kun striimaava käyttäjä vaihtuu
-    RTC.onicecandidate = (event) => {
-      if (event.candidate) {
-        sendMessage({
-          type: "ICE_CANDIDATE",
-          username: 'Kalle',
-          candidate: event.candidate,
-        })
-      }
-    }
-  })
 
   useEffect(() => {
     if (messages.length < 1) return // Ei vielä viestejä käsiteltäväksi
@@ -58,41 +45,80 @@ const Host = () => {
     // Katsotaan viesti joka saapui
     const last = messages[messages.length - 1]
 
-    switch(last.type) {
+    switch (last.type) {
       case "USER_JOINED":
-        setUsers((prevUsers) => [...prevUsers, {username: last.username, wantsToStream: false}]) 
+        setUsers((prevUsers) => [
+          ...prevUsers,
+          { username: last.username, wantsToStream: false, sdp: null, RTC: new RTCPeerConnection(), PendingICEcandidates: [] },
+        ])
         break
 
       case "USER_LEFT":
-        setUsers((prevUsers) => prevUsers.filter((u) => u.username !== last.username))
+        setUsers((prevUsers) =>
+          prevUsers.filter((u) => u.username !== last.username)
+        )
         break
 
       case "RCP_OFFER":
-        handleRCPOffer(RTC, last, sendMessage)
+        setUsers((prevUsers) =>
+          prevUsers.map((u) =>
+            u.username === last.username ? { ...u, wantsToStream: true, sdp: last.sdp } : u
+          )
+        )
         break
-      
+
       case "ICE_CANDIDATE":
-        RTC.addIceCandidate(new RTCIceCandidate(last.candidate))
+        updateICEcandidates(last)
         break
 
       default:
         console.log("Other message type: ", last.type)
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages])
 
-  const receiveVideo = () => {
-    // TODO This function doesn't work, It hides stream but it doesn't show up again
-    if (remoteStream) return setRemoteStream(null) 
+  const updateICEcandidates = (message) => {
+    let user = users.find(u => u.username == message.username)
+    if (!user) return
+    
+    // Add ICE to users pending ICE candidates
+    user.PendingICEcandidates.push(message.candidate)
+  }
+
+  const handleAnswer = (answer, user) => {
+    if (!answer) return
     
     // Get tracks from remote stream, add to video stream
     const stream = new MediaStream()
 
-    RTC.ontrack = (event) => {
+    user.RTC.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => stream.addTrack(track))
     }
+    
+    // Send ICE candidates
+    user.RTC.onicecandidate = (event) => {
+      if (event.candidate) {
+        sendMessage({
+          type: "ICE_CANDIDATE",
+          username: user.username,
+          candidate: event.candidate,
+        })
+      }
+    }
+
+
+
 
     setRemoteStream(stream)
+
+    // Send RCP Offer
+    handleRCPOffer(user, sendMessage)
+
+    // Add all ICE candidates to Users RTC 
+    user.PendingICEcandidates.forEach((c) => user.RTC.addIceCandidate(new RTCIceCandidate(c)));
+
+    console.log(user.RTC.connectionState)
+    console.log(remoteStream)
   }
 
   return (
@@ -102,14 +128,11 @@ const Host = () => {
         <button>Back</button>
       </Link>
 
-      <button onClick={() => receiveVideo()}>{buttonText(remoteStream)}</button>
-
       <Screen stream={remoteStream}></Screen>
 
       <h2>Current users in room</h2>
       {users.map((user) => {
-        return renderUser(user)
-
+        return renderUser(user, handleAnswer)
       })}
     </>
   )
