@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
-import servers from "../../components/utils.js"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
@@ -11,7 +10,7 @@ import "./client.css"
 
 
 const Client = () => {
-  const [RTC, _] = useState(new RTCPeerConnection(servers))
+  const [RTC, _] = useState(new RTCPeerConnection())
   const [localStream, setLocalStream] = useState(null)
   const [buttonText, setButtonText] = useState("Request Screen Share")
   const { sendMessage, messages } = useWebSocket()
@@ -49,19 +48,7 @@ const Client = () => {
       RTC.addIceCandidate(new RTCIceCandidate(last.candidate))
     }
 
-  }, [messages])
-
-  const handleOffers = async () => {
-    const offerDescription = await RTC.createOffer()
-    await RTC.setLocalDescription(offerDescription)
-
-    const offer = {
-      type: "RCP_OFFER",
-      sdp: offerDescription.sdp,
-    }
-
-    sendMessage(offer)
-  }
+  }, [messages, RTC])
 
   const controlVideoSharing = async () => {
     // User wants to stop the stream
@@ -72,15 +59,7 @@ const Client = () => {
       return
     }
 
-    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true })
-
-    // Checks if the stream is stopped by other means
-    stream.getVideoTracks().forEach((track) => {
-      track.onended = () => {
-        setLocalStream(null)
-        setButtonText("Request Screen Share")
-      }
-    })
+    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
 
     // Push tracks from Local stream to peer connection
     setLocalStream(stream)
@@ -88,6 +67,24 @@ const Client = () => {
 
     stream.getTracks().forEach((track) => {
       RTC.addTrack(track, stream)
+    })
+
+    const offerDescription = await RTC.createOffer()
+    await RTC.setLocalDescription(offerDescription)
+
+    const offer = {
+      type: "RCP_OFFER",
+      sdp: offerDescription.sdp,
+    }
+
+    sendMessage(offer)
+
+    // Checks if the stream is stopped by other means
+    stream.getVideoTracks().forEach((track) => {
+      track.onended = () => {
+        setLocalStream(null)
+        setButtonText("Request Screen Share")
+      }
     })
   }
 
@@ -99,7 +96,6 @@ const Client = () => {
       </Link>
 
       <button onClick={controlVideoSharing}>{buttonText}</button>
-      <button onClick={handleOffers}>Handle offer</button>
       <Screen stream={localStream}></Screen>
     </>
   )

@@ -6,7 +6,7 @@ import handleRCPOffer from "./handle_messages.js"
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
 import { Link } from "react-router-dom"
-import servers from "../../components/utils.js"
+import { useMemo } from "react"
 
 // Styling
 import "./host.css"
@@ -18,19 +18,29 @@ const buttonText = (remoteStream) => {
   return "Show Stream"
 }
 
+const renderUser = (user) => {
+  if (!user.wantsToStream) { return <div><p key={user.username}>{user.username}</p></div> }
+  return (
+    <div>
+      <p key={user.username}>{user.username}</p>
+      <button>Accept</button>
+      <button>Decline</button>
+    </div>
+  )
+}
 
 const Host = () => {
-  const [RTC, _] = useState(new RTCPeerConnection(servers))
+  const RTC = useMemo(() => new RTCPeerConnection(), [])
 
   const [remoteStream, setRemoteStream] = useState(null)
   const { sendMessage, messages } = useWebSocket()
 
   const [users, setUsers] = useState([])
-  // TODO const [streamingUser, setStreamingUser] = useState(null)
+  // const [streamingUser, setStreamingUser] = useState(null)
   const { roomID } = useParams()
 
   useEffect(() => {
-    // Ajetaan sovellukseen tultaessa
+    // Ajetaan kun striimaava käyttäjä vaihtuu
     RTC.onicecandidate = (event) => {
       if (event.candidate) {
         sendMessage({
@@ -50,11 +60,11 @@ const Host = () => {
 
     switch(last.type) {
       case "USER_JOINED":
-        setUsers((prevUsers) => [...prevUsers, last.username]) 
+        setUsers((prevUsers) => [...prevUsers, {username: last.username, wantsToStream: false}]) 
         break
 
       case "USER_LEFT":
-        setUsers((prevUsers) => prevUsers.filter((u) => u !== last.username))
+        setUsers((prevUsers) => prevUsers.filter((u) => u.username !== last.username))
         break
 
       case "RCP_OFFER":
@@ -66,8 +76,9 @@ const Host = () => {
         break
 
       default:
-        console.log("Unknown message type: ", last.type)
+        console.log("Other message type: ", last.type)
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages])
 
   const receiveVideo = () => {
@@ -97,7 +108,8 @@ const Host = () => {
 
       <h2>Current users in room</h2>
       {users.map((user) => {
-        return <p key={user}>{user}</p>
+        return renderUser(user)
+
       })}
     </>
   )
