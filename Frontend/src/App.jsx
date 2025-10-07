@@ -26,7 +26,7 @@ function App() {
         </Button>
       </VStack>
         
-      <Box minH="100vh" display="flex" justifyContent="center" alignItems="center">
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="48vh">
         <VStack spacing={7} align="center">
           <Box width="100%" padding="4" color="black" fontSize="3xl">
             Liity opettajan huoneeseen syöttämällä liittymiskoodi:
