@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
-import handleRCPOffer from "./handle_messages.js"
+import handleRCPOffer from "./handleMessages.js"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
