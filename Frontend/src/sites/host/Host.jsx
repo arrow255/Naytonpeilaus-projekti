@@ -10,7 +10,6 @@ import { Link } from "react-router-dom"
 // Styling
 import "./host.css"
 
-
 const renderUser = (user, handleAnswer) => {
   const username = user.username
 
@@ -38,7 +37,6 @@ const Host = () => {
   const [users, setUsers] = useState([])
   const { roomID } = useParams()
 
-
   useEffect(() => {
     if (messages.length < 1) return // Ei vielä viestejä käsiteltäväksi
 
@@ -49,7 +47,13 @@ const Host = () => {
       case "USER_JOINED":
         setUsers((prevUsers) => [
           ...prevUsers,
-          { username: last.username, wantsToStream: false, sdp: null, RTC: new RTCPeerConnection(), PendingICEcandidates: [] },
+          {
+            username: last.username,
+            wantsToStream: false,
+            sdp: null,
+            RTC: new RTCPeerConnection(),
+            PendingICEcandidates: [],
+          },
         ])
         break
 
@@ -62,7 +66,9 @@ const Host = () => {
       case "RCP_OFFER":
         setUsers((prevUsers) =>
           prevUsers.map((u) =>
-            u.username === last.username ? { ...u, wantsToStream: true, sdp: last.sdp } : u
+            u.username === last.username
+              ? { ...u, wantsToStream: true, sdp: last.sdp }
+              : u
           )
         )
         break
@@ -78,25 +84,45 @@ const Host = () => {
   }, [messages])
 
   const updateICEcandidates = (message) => {
-    let user = users.find(u => u.username == message.username)
+    let user = users.find((u) => u.username == message.username)
     if (!user) return
-    
+
     // Add ICE to users pending ICE candidates
     user.PendingICEcandidates.push(message.candidate)
   }
 
+  const removeUserRequest = (user) => {
+      // Remove the request from user
+      const nextUsers = users.map(o => {
+        if (o.username === user.username) { o.wantsToStream = false }
+        return o
+      })
+      setUsers(nextUsers)
+  }
+
+
   const handleAnswer = (answer, user) => {
-    if (!answer) {
-      console.log(user.RTC.connectionState)
+    /*
+      This function handles action, when host either accepts or declines screen request from user
+    */
+
+    // If host decides to decline answer
+    if (!answer) { 
+      // Remove the request from user
+      removeUserRequest(user)
+
+      // Send message to user about declining
+      // TODO -> sendMessage()
+
+      return
     }
-    
+
     // Get tracks from remote stream, add to video stream
     const stream = new MediaStream()
-
     user.RTC.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => stream.addTrack(track))
     }
-    
+
     // Send ICE candidates
     user.RTC.onicecandidate = (event) => {
       if (event.candidate) {
@@ -114,8 +140,13 @@ const Host = () => {
     // Send RCP Offer
     handleRCPOffer(user, sendMessage)
 
-    // Add all ICE candidates to Users RTC 
-    user.PendingICEcandidates.forEach((c) => user.RTC.addIceCandidate(new RTCIceCandidate(c)));
+    // Add all ICE candidates to Users RTC
+    user.PendingICEcandidates.forEach((c) =>
+      user.RTC.addIceCandidate(new RTCIceCandidate(c))
+    )
+
+    // Remove user request
+    removeUserRequest(user)
   }
 
   return (
