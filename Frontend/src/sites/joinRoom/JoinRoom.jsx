@@ -11,11 +11,18 @@ const JoinRoom = () => {
     const [roomID, setRoomID] = useState('')
     const [username, setUsername] = useState('')
     const {sendMessage, messages} = useWebSocket();
-    const [virheilmoitus, setVirheilmoitus] = useState(null)
+    const [virheilmoitus, setVirheilmoitus] = useState(null) 
+
 
     const joinRoom = async () => {
         sendMessage({type: "JOIN_ROOM", roomid: roomID, username: username})
     }
+
+    useEffect(() => {
+        // Run with initial render only
+        const savedUsername = localStorage.getItem('username')
+        if (savedUsername) setUsername(savedUsername)
+    }, [])
 
     useEffect(() => {
         if (messages.length < 1) return // Ei vielä viestejä käsiteltäväksi
@@ -24,12 +31,15 @@ const JoinRoom = () => {
         const last = messages[messages.length - 1];
 
         if (last.type == 'ROOM_JOINED') {
-            navigate(`/room/${last.roomid}`)
+            localStorage.setItem('username', username);
+            navigate(`/room/${last.roomid}`, { state: {username} })
         } else {
             setVirheilmoitus(last.message)
         }
-
-    }, [messages, navigate])
+        
+        // Silence the warning, only run this effect when new messages show up
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [messages])
 
 
     return (

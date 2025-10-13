@@ -12,6 +12,8 @@ import "./client.css"
 const Client = () => {
   const RTC = useRef(null)
   const pendingCandidates = useRef([])
+  const savedUsername = localStorage.getItem('username');
+
 
   const [localStream, setLocalStream] = useState(null)
   const [buttonText, setButtonText] = useState("Request Screen Share")
@@ -32,7 +34,7 @@ const Client = () => {
         }
       }
     }
-  }, [sendMessage])
+  })
 
   useEffect(() => {
     if (messages.length < 1) return // Not yet message for reading
@@ -47,7 +49,7 @@ const Client = () => {
     if (last.type == "ICE_CANDIDATE") {
       handleICEcandidate(last.candidate)
     }
-  }, [messages, RTC, sendMessage])
+  }, [messages])
 
   async function handleAnswer(answer) {
     const receivedOffer = new RTCSessionDescription({
@@ -90,9 +92,8 @@ const Client = () => {
         // Send message to host
         sendMessage({
           "type": "STOP_SHARING",
-          "username": "client-name"
+          "username": savedUsername
         })
-
 
       })
       setLocalStream(null)
@@ -104,8 +105,6 @@ const Client = () => {
       video: true,
       audio: true,
     })
-
-    console.log("Got media stream:", stream.id)
 
     // Set the local stream so user sees his stream
     setLocalStream(stream)
@@ -147,7 +146,7 @@ const Client = () => {
 
   return (
     <>
-      <h1>This is the client website</h1>
+      <h1>This is the client website for {savedUsername}</h1>
       <Link to='/'>
         <button>Back</button>
       </Link>

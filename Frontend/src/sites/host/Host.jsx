@@ -87,6 +87,8 @@ const Host = () => {
       default:
         console.log("Other message type: ", last.type)
     }
+
+    // We want this to run only when we get messages
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages])
 
@@ -109,10 +111,6 @@ const Host = () => {
 
 
   const handleAnswer = (answer, user) => {
-    /*
-      This function handles action, when host either accepts or declines screen request from user
-    */
-
     // If host decides to decline answer
     if (!answer) { 
       // Remove the request from user
