@@ -79,9 +79,11 @@ const Host = () => {
         break
 
       case "STOP_SHARING":
-        // TODO handle stream stopping
         // Check if the current user stops stream, otherwise continue
-        setStreamingUser(null)
+        if (last.username === streamingUser.username) {
+          setStreamingUser(null)
+          setRemoteStream(null)
+        }
         break
 
       default:
@@ -101,18 +103,19 @@ const Host = () => {
   }
 
   const removeUserRequest = (user) => {
-      // Remove the request from user
-      const nextUsers = users.map(o => {
-        if (o.username === user.username) { o.wantsToStream = false }
-        return o
-      })
-      setUsers(nextUsers)
+    // Remove the request from user
+    const nextUsers = users.map((o) => {
+      if (o.username === user.username) {
+        o.wantsToStream = false
+      }
+      return o
+    })
+    setUsers(nextUsers)
   }
-
 
   const handleAnswer = (answer, user) => {
     // If host decides to decline answer
-    if (!answer) { 
+    if (!answer) {
       // Remove the request from user
       removeUserRequest(user)
 
@@ -123,10 +126,9 @@ const Host = () => {
     }
 
     if (streamingUser) {
-      window.alert("There is already stream running");
+      window.alert("There is already stream running")
       return
     }
-
 
     // Get tracks from remote stream, add to video stream
     const stream = new MediaStream()

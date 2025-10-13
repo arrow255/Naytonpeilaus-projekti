@@ -12,8 +12,7 @@ import "./client.css"
 const Client = () => {
   const RTC = useRef(null)
   const pendingCandidates = useRef([])
-  const savedUsername = localStorage.getItem('username');
-
+  const savedUsername = localStorage.getItem("username")
 
   const [localStream, setLocalStream] = useState(null)
   const [buttonText, setButtonText] = useState("Request Screen Share")
@@ -66,6 +65,17 @@ const Client = () => {
     pendingCandidates.current = []
   }
 
+  function sendMessageStopStreaming() {
+    // Send message to host
+    sendMessage({
+      type: "STOP_SHARING",
+      username: savedUsername,
+    })
+
+    setLocalStream(null)
+    setButtonText("Request Screen Share")
+  }
+
   function handleICEcandidate(candidate) {
     if (RTC.current.remoteDescription) {
       // Add the candidate to RTC
@@ -88,16 +98,9 @@ const Client = () => {
         if (sender) {
           RTC.current.removeTrack(sender)
         }
-
-        // Send message to host
-        sendMessage({
-          "type": "STOP_SHARING",
-          "username": savedUsername
-        })
-
       })
-      setLocalStream(null)
-      setButtonText("Request Screen Share")
+
+      sendMessageStopStreaming()
       return
     }
 
@@ -130,9 +133,6 @@ const Client = () => {
     // Handle stream ending (user stops sharing via browser UI)
     stream.getVideoTracks().forEach((track) => {
       track.onended = () => {
-        setLocalStream(null)
-        setButtonText("Request Screen Share")
-
         // Remove all tracks from peer connection
         const senders = RTC.current.getSenders()
         senders.forEach((sender) => {
@@ -140,6 +140,7 @@ const Client = () => {
             RTC.current.removeTrack(sender)
           }
         })
+        sendMessageStopStreaming()
       }
     })
   }
