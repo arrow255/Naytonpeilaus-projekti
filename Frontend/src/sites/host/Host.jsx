@@ -80,10 +80,13 @@ const Host = () => {
 
       case "STOP_SHARING":
         // Check if the current user stops stream, otherwise continue
-        if (last.username === streamingUser.username) {
+        if (streamingUser && last.username === streamingUser.username) {
           setStreamingUser(null)
           setRemoteStream(null)
-        }
+        } 
+
+        // If user pulled their request for streaming away
+        removeUserRequest(last.username)
         break
 
       default:
@@ -102,10 +105,10 @@ const Host = () => {
     user.PendingICEcandidates.push(message.candidate)
   }
 
-  const removeUserRequest = (user) => {
+  const removeUserRequest = (username) => {
     // Remove the request from user
     const nextUsers = users.map((o) => {
-      if (o.username === user.username) {
+      if (o.username === username) {
         o.wantsToStream = false
       }
       return o
@@ -117,7 +120,7 @@ const Host = () => {
     // If host decides to decline answer
     if (!answer) {
       // Remove the request from user
-      removeUserRequest(user)
+      removeUserRequest(user.username)
 
       // Send message to user about declining
       // TODO -> sendMessage()
@@ -159,7 +162,7 @@ const Host = () => {
     )
 
     // Remove user request and add them as the streaming user
-    removeUserRequest(user)
+    removeUserRequest(user.username)
     setStreamingUser(user)
   }
 
