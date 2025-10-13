@@ -86,6 +86,14 @@ const Client = () => {
         if (sender) {
           RTC.current.removeTrack(sender)
         }
+
+        // Send message to host
+        sendMessage({
+          "type": "STOP_SHARING",
+          "username": "client-name"
+        })
+
+
       })
       setLocalStream(null)
       setButtonText("Request Screen Share")

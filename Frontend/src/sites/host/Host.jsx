@@ -33,6 +33,7 @@ const renderUser = (user, handleAnswer) => {
 const Host = () => {
   const [remoteStream, setRemoteStream] = useState(null)
   const { sendMessage, messages } = useWebSocket()
+  const [streamingUser, setStreamingUser] = useState(null)
 
   const [users, setUsers] = useState([])
   const { roomID } = useParams()
@@ -77,6 +78,12 @@ const Host = () => {
         updateICEcandidates(last)
         break
 
+      case "STOP_SHARING":
+        // TODO handle stream stopping
+        // Check if the current user stops stream, otherwise continue
+        setStreamingUser(null)
+        break
+
       default:
         console.log("Other message type: ", last.type)
     }
@@ -117,6 +124,12 @@ const Host = () => {
       return
     }
 
+    if (streamingUser) {
+      window.alert("There is already stream running");
+      return
+    }
+
+
     // Get tracks from remote stream, add to video stream
     const stream = new MediaStream()
     user.RTC.ontrack = (event) => {
@@ -145,8 +158,9 @@ const Host = () => {
       user.RTC.addIceCandidate(new RTCIceCandidate(c))
     )
 
-    // Remove user request
+    // Remove user request and add them as the streaming user
     removeUserRequest(user)
+    setStreamingUser(user)
   }
 
   return (
