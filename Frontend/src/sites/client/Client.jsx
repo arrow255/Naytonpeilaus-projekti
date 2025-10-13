@@ -9,14 +9,40 @@ import Screen from "../../components/Screen/Screen.jsx"
 // Styling
 import "./client.css"
 
+
+const InfoBox = ({ connectionState }) => {
+  let text = ''
+
+  if (connectionState == 'idle') {
+    text = "Waiting for stream to start..."
+  } else if (connectionState == 'waiting') {
+    text = "Waiting for host to accept..."
+  } else if (connectionState == 'connected') {
+    text = "You are currently streaming!"
+  } else if (connectionState == 'ended') {
+    text = "Connection ended or failed"
+  }
+
+  return <div style={{'backgroundColor': 'grey'}}><h3>{text}</h3></div>
+}
+
+
+
+
 const Client = () => {
   const RTC = useRef(null)
   const pendingCandidates = useRef([])
   const savedUsername = localStorage.getItem("username")
 
+  // WebRTC
   const [localStream, setLocalStream] = useState(null)
-  const [buttonText, setButtonText] = useState("Request Screen Share")
   const { sendMessage, messages } = useWebSocket()
+
+  // UI changes
+  const [buttonText, setButtonText] = useState("Request Screen Share")
+
+  // Track connection status
+  const [connectionStatus, setConnectionStatus] = useState("idle")
 
   useEffect(() => {
     // Initialize RTC connection
@@ -32,6 +58,15 @@ const Client = () => {
           })
         }
       }
+
+      // If connection fails, change the connection state
+      RTC.onconnectionstatechange = () => {
+        if (["disconnected", "failed", "closed"].includes(RTC.connectionState)) {
+          setConnectionStatus("ended")
+          setLocalStream(null)
+        }
+      };
+
     }
   })
 
@@ -50,7 +85,7 @@ const Client = () => {
     }
   }, [messages])
 
-  async function handleAnswer(answer) {
+  const handleAnswer = async (answer) => {
     const receivedOffer = new RTCSessionDescription({
       type: "answer",
       sdp: answer.sdp,
@@ -63,9 +98,12 @@ const Client = () => {
       await RTC.current.addIceCandidate(new RTCIceCandidate(candidate))
     }
     pendingCandidates.current = []
+
+    // We are now connected to the host
+    setConnectionStatus("connected")
   }
 
-  function sendMessageStopStreaming() {
+  const sendMessageStopStreaming = () => {
     // Send message to host
     sendMessage({
       type: "STOP_SHARING",
@@ -74,9 +112,10 @@ const Client = () => {
 
     setLocalStream(null)
     setButtonText("Request Screen Share")
+    setConnectionStatus("ended")
   }
 
-  function handleICEcandidate(candidate) {
+  const handleICEcandidate = (candidate) => {
     if (RTC.current.remoteDescription) {
       // Add the candidate to RTC
       RTC.current.addIceCandidate(new RTCIceCandidate(candidate))
@@ -112,23 +151,12 @@ const Client = () => {
     // Set the local stream so user sees his stream
     setLocalStream(stream)
     setButtonText("Stop Screen Share")
+    setConnectionStatus("waiting");
 
     // Add tracks from Local stream to peer connection
     stream.getTracks().forEach((track) => {
       RTC.current.addTrack(track, stream)
     })
-
-    // Create Offer and send offer
-    const offerDescription = await RTC.current.createOffer()
-    await RTC.current.setLocalDescription(offerDescription)
-
-    const offer = {
-      type: "RCP_OFFER",
-      sdp: offerDescription.sdp,
-    }
-
-    // Send offer to other party
-    sendMessage(offer)
 
     // Handle stream ending (user stops sharing via browser UI)
     stream.getVideoTracks().forEach((track) => {
@@ -143,6 +171,18 @@ const Client = () => {
         sendMessageStopStreaming()
       }
     })
+
+    // Create Offer and send offer
+    const offerDescription = await RTC.current.createOffer()
+    await RTC.current.setLocalDescription(offerDescription)
+
+    const offer = {
+      type: "RCP_OFFER",
+      sdp: offerDescription.sdp,
+    }
+
+    // Send offer to other party
+    sendMessage(offer)
   }
 
   return (
@@ -154,6 +194,7 @@ const Client = () => {
 
       <button onClick={controlVideoSharing}>{buttonText}</button>
       <Screen stream={localStream}></Screen>
+      <InfoBox connectionState={connectionStatus}></InfoBox>
     </>
   )
 }
