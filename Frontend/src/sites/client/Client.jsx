@@ -190,7 +190,7 @@ const Client = () => {
   }
 
   return (
-    <>
+    <div id='clientsite'>
       <h1>This is the client website for {savedUsername}</h1>
       <Link to='/'>
         <button>Back</button>
@@ -199,7 +199,7 @@ const Client = () => {
       <button onClick={controlVideoSharing}>{buttonText}</button>
       <Screen stream={localStream}></Screen>
       <InfoBox connectionState={connectionStatus}></InfoBox>
-    </>
+    </div>
   )
 }
 
