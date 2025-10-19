@@ -1,12 +1,8 @@
 #joinRoomForm {
-    width: 100px;
+    width: 150px;
 
     margin-bottom: 25px;
 
     display: flex;
     flex-direction: column;
-}
-
-:root {
-    color: black;
 }
