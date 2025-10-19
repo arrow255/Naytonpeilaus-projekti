@@ -43,6 +43,12 @@ const Host = () => {
         setUsers((prevUsers) =>
           prevUsers.filter((u) => u.username !== last.username)
         )
+
+        // If the user who left was streaming, close the stream
+        if (streamingUser && last.username === streamingUser.username) {
+          resetStream()
+        }
+
         break
 
       case "RCP_OFFER":
@@ -62,8 +68,7 @@ const Host = () => {
       case "STOP_SHARING":
         // Check if the current user stops stream, otherwise continue
         if (streamingUser && last.username === streamingUser.username) {
-          setStreamingUser(null)
-          setRemoteStream(null)
+          resetStream()
         }
 
         // If user pulled their request for streaming away
@@ -157,9 +162,14 @@ const Host = () => {
       username: streamingUser.username,
     })
 
+    resetStream()
+  }
+
+  const resetStream = () => {
     setRemoteStream(null)
     setStreamingUser(null)
   }
+
 
   return (
     <Box display='flex' minH='100vh' color='black'>
