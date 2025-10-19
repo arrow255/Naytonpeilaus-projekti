@@ -11,7 +11,6 @@ import { Link } from "react-router-dom"
 // Styling
 import "./host.css"
 
-
 const Host = () => {
   const [remoteStream, setRemoteStream] = useState(null)
   const { sendMessage, messages } = useWebSocket()
@@ -157,53 +156,70 @@ const Host = () => {
       type: "STOP_SHARING",
       username: streamingUser.username,
     })
-    
+
     setRemoteStream(null)
     setStreamingUser(null)
-
   }
 
-
   return (
-    <Box display="flex" minH="100vh" color="black">
+    <Box display='flex' minH='100vh' color='black'>
       {/* Jaettu näyttö + liittymiskoodijutut */}
-      <Box flex="1" bg="yellow.100" p={4}>
-        <Heading size="4xl">Liity koodilla {roomID}</Heading>
+      <Box flex='1' bg='yellow.100' p={4}>
+        <Heading size='4xl'>Liity koodilla {roomID}</Heading>
+
+        {/* If user there is user streaming currently */}
+        {streamingUser && (
+          <>
+            <Heading size='2xl'>
+              Tällä hetkellä näyttöä jakaa: {streamingUser.username}
+            </Heading>
+            <Button
+              colorPalette='red'
+              size='xs'
+              variant='surface'
+              onClick={() => stopUserStream()}
+            >
+              Lopeta peilaus
+            </Button>
+          </>
+        )}
+
         <Screen stream={remoteStream}></Screen>
       </Box>
 
       {/* Sivupalkkijutut */}
       <Box
-        width="200px"
-        bg="green.200"
+        width='200px'
+        bg='green.200'
         p={4}
-        display="flex"
-        flexDirection="column"
-        height="100vh"
+        display='flex'
+        flexDirection='column'
+        height='100vh'
       >
         {/* Käyttäjälista */}
-        <VStack 
-        spacing={2} 
-        align="stretch" 
-        flex="1" 
-        overflowY="auto"
-        >
-          <Text fontWeight="bold">Liittyneet käyttäjät:</Text>
+        <VStack spacing={2} align='stretch' flex='1' overflowY='auto'>
+          <Text fontWeight='bold'>Liittyneet käyttäjät:</Text>
           {users.map((user) => (
-            <Box key={user.username} p={2} bg="white" borderRadius="md">
+            <Box key={user.username} p={2} bg='white' borderRadius='md'>
               <Text>{user.username}</Text>
               {user.wantsToStream && (
-                <Box mt={1} display="flex" gap={2}>
-                  <Button 
-                  colorPalette="green" 
-                  size="xs" 
-                  variant="surface"
-                  onClick={() => handleAnswer(true, user)}>Aloita jako</Button>
-                  <Button 
-                  colorPalette="red" 
-                  size="xs" 
-                  variant="surface"
-                  onClick={() => handleAnswer(false, user)}>Hylkää</Button>
+                <Box mt={1} display='flex' gap={2}>
+                  <Button
+                    colorPalette='green'
+                    size='xs'
+                    variant='surface'
+                    onClick={() => handleAnswer(true, user)}
+                  >
+                    Aloita jako
+                  </Button>
+                  <Button
+                    colorPalette='red'
+                    size='xs'
+                    variant='surface'
+                    onClick={() => handleAnswer(false, user)}
+                  >
+                    Hylkää
+                  </Button>
                 </Box>
               )}
             </Box>
@@ -213,13 +229,9 @@ const Host = () => {
         {/* TODO: tähän paikkeille QR koodi liitymislikki */}
 
         {/* Takaisin nappi */}
-        <Box mt="auto" display="flex" justifyContent="center">
-          <Link to="/">
-            <Button 
-            colorPalette="teal" 
-            size="xl" 
-            variant="surface"
-            >
+        <Box mt='auto' display='flex' justifyContent='center'>
+          <Link to='/'>
+            <Button colorPalette='teal' size='xl' variant='surface'>
               Takaisin
             </Button>
           </Link>
