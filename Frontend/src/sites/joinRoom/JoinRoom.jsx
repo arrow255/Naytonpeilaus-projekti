@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react";
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext";
+import { Box, VStack, Heading, Button, ButtonGroup, Input } from "@chakra-ui/react"
 
 // Styling
 import "./joinRoom.css"
@@ -44,19 +45,25 @@ const JoinRoom = () => {
 
     return (
         <>
+        <Box bg="yellow.100" minH="100vh" p={4}>
             <h1>This is the Join room site</h1>
 
             <div id='joinRoomForm'>
-                <label>room id</label>
-                <input value={roomID} onChange={(event) => setRoomID(event.target.value)}/>
+                <label>Huoneen ID</label>
+                <Input value={roomID} onChange={(event) => setRoomID(event.target.value)}/>
 
-                <label>username</label>
-                <input value={username} onChange={(event) => setUsername(event.target.value)}/>
+                <label>käyttäjänimi</label>
+                <Input value={username} onChange={(event) => setUsername(event.target.value)}/>
 
-                <button onClick={() => joinRoom()}>
-                    Join Room
-                </button>
+                <Button colorPalette="teal" 
+                        size="xl" 
+                        variant="surface"
+                        onClick={joinRoom}>
+                    Liity huoneeseen
+                </Button>
             </div>
+
+            
 
             <h3>{virheilmoitus}</h3>
 
@@ -65,7 +72,7 @@ const JoinRoom = () => {
                     Back
                 </button>
             </Link>
-
+        </Box>    
         </>
     )
 }

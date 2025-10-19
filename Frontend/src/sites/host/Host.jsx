@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
+import { Box, VStack, Text, Button, Heading } from "@chakra-ui/react"
 import handleRCPOffer from "./handleMessages.js"
 
 // Components
@@ -167,19 +168,67 @@ const Host = () => {
   }
 
   return (
-    <>
-      <h1>This is the host website, hosting room {roomID}</h1>
-      <Link to='/'>
-        <button>Back</button>
-      </Link>
+    <Box display="flex" minH="100vh">
+      {/* Jaettu näyttö + liittymiskoodijutut */}
+      <Box flex="1" bg="yellow.100" p={4}>
+        <Heading size="4xl">Liity koodilla {roomID}</Heading>
+        <Screen stream={remoteStream}></Screen>
+      </Box>
 
-      <Screen stream={remoteStream}></Screen>
+      {/* Sivupalkkijutut */}
+      <Box
+        width="200px"
+        bg="green.200"
+        p={4}
+        display="flex"
+        flexDirection="column"
+        height="100vh"
+      >
+        {/* Käyttäjälista */}
+        <VStack 
+        spacing={2} 
+        align="stretch" 
+        flex="1" 
+        overflowY="auto"
+        >
+          <Text fontWeight="bold">Liittyneet käyttäjät:</Text>
+          {users.map((user) => (
+            <Box key={user.username} p={2} bg="white" borderRadius="md">
+              <Text>{user.username}</Text>
+              {user.wantsToStream && (
+                <Box mt={1} display="flex" gap={2}>
+                  <Button 
+                  colorPalette="green" 
+                  size="xs" 
+                  variant="surface"
+                  onClick={() => handleAnswer(true, user)}>Aloita jako</Button>
+                  <Button 
+                  colorPalette="red" 
+                  size="xs" 
+                  variant="surface"
+                  onClick={() => handleAnswer(false, user)}>Hylkää</Button>
+                </Box>
+              )}
+            </Box>
+          ))}
+        </VStack>
 
-      <h2>Current users in room</h2>
-      {users.map((user) => {
-        return renderUser(user, handleAnswer)
-      })}
-    </>
+        {/* TODO: tähän paikkeille QR koodi liitymislikki */}
+
+        {/* Takaisin nappi */}
+        <Box mt="auto" display="flex" justifyContent="center">
+          <Link to="/">
+            <Button 
+            colorPalette="teal" 
+            size="xl" 
+            variant="surface"
+            >
+              Takaisin
+            </Button>
+          </Link>
+        </Box>
+      </Box>
+    </Box>
   )
 }
 

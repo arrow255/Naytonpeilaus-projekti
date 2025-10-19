@@ -6,6 +6,7 @@ import { Link } from "react-router-dom"
 function App() {
   return (
     <Box bg="yellow.100" minH="100vh" w="100%" p={4}>
+      {/* kirjautumis ja huoneen luomis napit */}
       <VStack spacing={3} align="end" mt={1}>
         <Button 
         as={Link} to="/join_room" 
@@ -32,6 +33,7 @@ function App() {
             Liity opettajan huoneeseen syöttämällä liittymiskoodi:
           </Box>
           
+          {/* pin koodi paikka */}
           <PinInput.Root type="alphanumeric" placeholder="">
             <PinInput.HiddenInput />
             <PinInput.Control>
