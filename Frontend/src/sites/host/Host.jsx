@@ -39,9 +39,9 @@ const Host = () => {
   const { roomID } = useParams()
 
   useEffect(() => {
-    if (messages.length < 1) return // Ei vielä viestejä käsiteltäväksi
+    if (messages.length < 1) return // No yet messages to handle
 
-    // Katsotaan viesti joka saapui
+    // The message that arrived
     const last = messages[messages.length - 1]
 
     switch (last.type) {
@@ -83,7 +83,7 @@ const Host = () => {
         if (streamingUser && last.username === streamingUser.username) {
           setStreamingUser(null)
           setRemoteStream(null)
-        } 
+        }
 
         // If user pulled their request for streaming away
         removeUserRequest(last.username)
@@ -166,12 +166,35 @@ const Host = () => {
     setStreamingUser(user)
   }
 
+  const stopUserStream = () => {
+    // Stop the stream
+    if (!streamingUser) return
+
+    // TODO: implement the new message
+    sendMessage({
+      type: "STOP_SHARING",
+      username: streamingUser.username,
+    })
+    
+    setRemoteStream(null)
+    setStreamingUser(null)
+
+  }
+
+
   return (
     <>
       <h1>This is the host website, hosting room {roomID}</h1>
       <Link to='/'>
         <button>Back</button>
       </Link>
+
+      {streamingUser && (
+        <div>
+          Current streming user: {streamingUser.username}{" "}
+          <button onClick={() => stopUserStream()}>Stop Stream</button>
+        </div>
+      )}
 
       <Screen stream={remoteStream}></Screen>
 

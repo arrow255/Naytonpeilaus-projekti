@@ -11,27 +11,30 @@ import "./client.css"
 
 
 const InfoBox = ({ connectionState }) => {
-  let text = ''
-
-  if (connectionState == 'idle') {
-    text = "Waiting for stream to start..."
-  } else if (connectionState == 'waiting') {
-    text = "Waiting for host to accept..."
-  } else if (connectionState == 'connected') {
-    text = "You are currently streaming!"
-  } else if (connectionState == 'ended') {
-    text = "Connection ended or failed"
+  const messages = {
+    idle: "Waiting for stream to start...",
+    waiting: "Waiting for host to accept...",
+    connected: "You are currently streaming!",
+    ended: "Connection ended or failed",
   }
 
-  return <div style={{'backgroundColor': 'grey'}}><h3>{text}</h3></div>
+  const text = messages[connectionState] ?? "Unknown state"
+
+  return (
+    <div
+      style={{ backgroundColor: "grey", padding: "1rem", borderRadius: "8px",  width: '300px' }}
+    >
+      <h3>{text}</h3>
+    </div>
+  )
 }
-
-
 
 
 const Client = () => {
   const RTC = useRef(null)
   const pendingCandidates = useRef([])
+
+  // TODO: Better way to pass username, dont rely on localStorage
   const savedUsername = localStorage.getItem("username")
 
   // WebRTC
@@ -61,12 +64,13 @@ const Client = () => {
 
       // If connection fails, change the connection state
       RTC.onconnectionstatechange = () => {
-        if (["disconnected", "failed", "closed"].includes(RTC.connectionState)) {
+        if (
+          ["disconnected", "failed", "closed"].includes(RTC.connectionState)
+        ) {
           setConnectionStatus("ended")
           setLocalStream(null)
         }
-      };
-
+      }
     }
   })
 
@@ -151,7 +155,7 @@ const Client = () => {
     // Set the local stream so user sees his stream
     setLocalStream(stream)
     setButtonText("Stop Screen Share")
-    setConnectionStatus("waiting");
+    setConnectionStatus("waiting")
 
     // Add tracks from Local stream to peer connection
     stream.getTracks().forEach((track) => {
