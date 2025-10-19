@@ -11,25 +11,6 @@ import { Link } from "react-router-dom"
 // Styling
 import "./host.css"
 
-const renderUser = (user, handleAnswer) => {
-  const username = user.username
-
-  if (!user.wantsToStream) {
-    return (
-      <div key={username}>
-        <p>{username}</p>
-      </div>
-    )
-  }
-
-  return (
-    <div key={username}>
-      <p>{username}</p>
-      <button onClick={() => handleAnswer(true, user)}>Accept</button>
-      <button onClick={() => handleAnswer(false, user)}>Decline</button>
-    </div>
-  )
-}
 
 const Host = () => {
   const [remoteStream, setRemoteStream] = useState(null)
@@ -184,7 +165,7 @@ const Host = () => {
 
 
   return (
-    <Box display="flex" minH="100vh">
+    <Box display="flex" minH="100vh" color="black">
       {/* Jaettu näyttö + liittymiskoodijutut */}
       <Box flex="1" bg="yellow.100" p={4}>
         <Heading size="4xl">Liity koodilla {roomID}</Heading>
