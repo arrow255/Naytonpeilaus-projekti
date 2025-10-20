@@ -2,6 +2,8 @@ import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
 import { useRef } from "react"
+import config from "@/components/servers.js"
+import { Box, VStack, Text, Button, Heading } from "@chakra-ui/react"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
@@ -9,18 +11,51 @@ import Screen from "../../components/Screen/Screen.jsx"
 // Styling
 import "./client.css"
 
+const InfoBox = ({ connectionState }) => {
+  const messages = {
+    idle: "Waiting for stream to start...",
+    waiting: "Waiting for host to accept...",
+    connected: "You are currently streaming!",
+    ended: "Connection ended or failed",
+  }
+
+  const text = messages[connectionState] ?? "Unknown state"
+
+  return (
+    <div
+      style={{
+        backgroundColor: "grey",
+        padding: "1rem",
+        borderRadius: "8px",
+        width: "300px",
+      }}
+    >
+      <h3>{text}</h3>
+    </div>
+  )
+}
+
 const Client = () => {
   const RTC = useRef(null)
   const pendingCandidates = useRef([])
 
+  // TODO: Better way to pass username, dont rely on localStorage
+  const savedUsername = localStorage.getItem("username")
+
+  // WebRTC
   const [localStream, setLocalStream] = useState(null)
-  const [buttonText, setButtonText] = useState("Request Screen Share")
   const { sendMessage, messages } = useWebSocket()
+
+  // UI changes
+  const [buttonText, setButtonText] = useState("Aloita jakaminen")
+
+  // Track connection status
+  const [connectionStatus, setConnectionStatus] = useState("idle")
 
   useEffect(() => {
     // Initialize RTC connection
     if (!RTC.current) {
-      RTC.current = new RTCPeerConnection()
+      RTC.current = new RTCPeerConnection(config)
 
       // Setup ICE candidate handler
       RTC.onicecandidate = (event) => {
@@ -31,8 +66,18 @@ const Client = () => {
           })
         }
       }
+
+      // If connection fails, change the connection state
+      RTC.onconnectionstatechange = () => {
+        if (
+          ["disconnected", "failed", "closed"].includes(RTC.connectionState)
+        ) {
+          setConnectionStatus("ended")
+          setLocalStream(null)
+        }
+      }
     }
-  }, [sendMessage])
+  })
 
   useEffect(() => {
     if (messages.length < 1) return // Not yet message for reading
@@ -47,9 +92,9 @@ const Client = () => {
     if (last.type == "ICE_CANDIDATE") {
       handleICEcandidate(last.candidate)
     }
-  }, [messages, RTC, sendMessage])
+  }, [messages])
 
-  async function handleAnswer(answer) {
+  const handleAnswer = async (answer) => {
     const receivedOffer = new RTCSessionDescription({
       type: "answer",
       sdp: answer.sdp,
@@ -62,9 +107,24 @@ const Client = () => {
       await RTC.current.addIceCandidate(new RTCIceCandidate(candidate))
     }
     pendingCandidates.current = []
+
+    // We are now connected to the host
+    setConnectionStatus("connected")
   }
 
-  function handleICEcandidate(candidate) {
+  const sendMessageStopStreaming = () => {
+    // Send message to host
+    sendMessage({
+      type: "STOP_SHARING",
+      username: savedUsername,
+    })
+
+    setLocalStream(null)
+    setButtonText("Aloita jakaminen")
+    setConnectionStatus("ended")
+  }
+
+  const handleICEcandidate = (candidate) => {
     if (RTC.current.remoteDescription) {
       // Add the candidate to RTC
       RTC.current.addIceCandidate(new RTCIceCandidate(candidate))
@@ -87,8 +147,8 @@ const Client = () => {
           RTC.current.removeTrack(sender)
         }
       })
-      setLocalStream(null)
-      setButtonText("Request Screen Share")
+
+      sendMessageStopStreaming()
       return
     }
 
@@ -97,15 +157,28 @@ const Client = () => {
       audio: true,
     })
 
-    console.log("Got media stream:", stream.id)
-
     // Set the local stream so user sees his stream
     setLocalStream(stream)
-    setButtonText("Stop Screen Share")
+    setButtonText("Lopeta näytön jakaminen")
+    setConnectionStatus("waiting")
 
     // Add tracks from Local stream to peer connection
     stream.getTracks().forEach((track) => {
       RTC.current.addTrack(track, stream)
+    })
+
+    // Handle stream ending (user stops sharing via browser UI)
+    stream.getVideoTracks().forEach((track) => {
+      track.onended = () => {
+        // Remove all tracks from peer connection
+        const senders = RTC.current.getSenders()
+        senders.forEach((sender) => {
+          if (sender.track) {
+            RTC.current.removeTrack(sender)
+          }
+        })
+        sendMessageStopStreaming()
+      }
     })
 
     // Create Offer and send offer
@@ -119,34 +192,49 @@ const Client = () => {
 
     // Send offer to other party
     sendMessage(offer)
-
-    // Handle stream ending (user stops sharing via browser UI)
-    stream.getVideoTracks().forEach((track) => {
-      track.onended = () => {
-        setLocalStream(null)
-        setButtonText("Request Screen Share")
-
-        // Remove all tracks from peer connection
-        const senders = RTC.current.getSenders()
-        senders.forEach((sender) => {
-          if (sender.track) {
-            RTC.current.removeTrack(sender)
-          }
-        })
-      }
-    })
   }
 
   return (
-    <>
-      <h1>This is the client website</h1>
-      <Link to='/'>
-        <button>Back</button>
-      </Link>
+    <Box display="flex" minH="100vh">
+      {/* jotain */}
+      <Box flex="1" bg="yellow.100" p={4}>
+        <Screen stream={localStream}></Screen>
+        <InfoBox connectionState={connectionStatus}></InfoBox>
+      </Box>
 
-      <button onClick={controlVideoSharing}>{buttonText}</button>
-      <Screen stream={localStream}></Screen>
-    </>
+      {/* Sivupalkkijutut */}
+      <Box
+        width="200px"
+        bg="green.200"
+        p={4}
+        display="flex"
+        flexDirection="column"
+        height="100vh"
+      >
+        {/* Käyttäjälista */}
+        <VStack 
+        spacing={2} 
+        align="stretch" 
+        flex="1" 
+        overflowY="auto"
+        >
+          <Link to='/'>
+            <Button colorPalette="teal" 
+                    size="xl" 
+                    variant="surface">
+                Poistu huoneesta
+            </Button>
+          </Link>
+          <Button 
+          colorPalette="teal" 
+          size="xl" 
+          variant="surface"
+          onClick={controlVideoSharing}>
+            {buttonText}
+          </Button>
+        </VStack>
+      </Box>
+    </Box>
   )
 }
 
