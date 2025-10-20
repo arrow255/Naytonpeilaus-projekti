@@ -16,6 +16,7 @@ const Host = () => {
   const [remoteStream, setRemoteStream] = useState(null)
   const { sendMessage, messages } = useWebSocket()
   const [streamingUser, setStreamingUser] = useState(null)
+  const [sidebarView, setSidebarView] = useState("kayttajat") 
 
   const [users, setUsers] = useState([])
   const { roomID } = useParams()
@@ -148,9 +149,6 @@ const Host = () => {
     setStreamingUser(user)
   }
 
-<<<<<<< HEAD
-  const [sidebarView, setSidebarView] = useState("kayttajat") 
-=======
   const stopUserStream = () => {
     // Stop the stream
     if (!streamingUser) return
@@ -168,7 +166,6 @@ const Host = () => {
     setRemoteStream(null)
     setStreamingUser(null)
   }
->>>>>>> fd1a2385aac4f0a9f9ab4c9813ee0019b8f71975
 
   return (
     <Box display="flex" minH="100vh">
