@@ -1,5 +1,5 @@
 // src/App.jsx
-import { PinInput, Box, VStack, Heading, Button, ButtonGroup } from "@chakra-ui/react"
+import { PinInput, Box, VStack, Button } from "@chakra-ui/react"
 import { Link } from "react-router-dom"
 
 //TODO: luo huone näkyviin vasta jos kirjautunut? Jos se on järkevä sillee
@@ -25,7 +25,7 @@ function App() {
           </Box>
           
           {/* pin koodi paikka */}
-          <PinInput.Root type="alphanumeric" placeholder="">
+          <PinInput.Root type="alphanumeric" placeholder="" >
             <PinInput.HiddenInput />
             <PinInput.Control>
               <PinInput.Input index={0} w="80px" h="80px" fontSize="3xl" borderWidth="3px" borderColor="black" />
