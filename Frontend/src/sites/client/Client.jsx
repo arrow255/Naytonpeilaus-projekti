@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
 import { useRef } from "react"
 import config from "@/components/servers.js"
+import { Box, VStack, Text, Button, Heading } from "@chakra-ui/react"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
@@ -46,7 +47,7 @@ const Client = () => {
   const { sendMessage, messages } = useWebSocket()
 
   // UI changes
-  const [buttonText, setButtonText] = useState("Request Screen Share")
+  const [buttonText, setButtonText] = useState("Aloita jakaminen")
 
   // Track connection status
   const [connectionStatus, setConnectionStatus] = useState("idle")
@@ -119,7 +120,7 @@ const Client = () => {
     })
 
     setLocalStream(null)
-    setButtonText("Request Screen Share")
+    setButtonText("Aloita jakaminen")
     setConnectionStatus("ended")
   }
 
@@ -158,7 +159,7 @@ const Client = () => {
 
     // Set the local stream so user sees his stream
     setLocalStream(stream)
-    setButtonText("Stop Screen Share")
+    setButtonText("Lopeta näytön jakaminen")
     setConnectionStatus("waiting")
 
     // Add tracks from Local stream to peer connection
@@ -194,16 +195,46 @@ const Client = () => {
   }
 
   return (
-    <div id='clientsite'>
-      <h1>This is the client website for {savedUsername}</h1>
-      <Link to='/'>
-        <button>Back</button>
-      </Link>
+    <Box display="flex" minH="100vh">
+      {/* jotain */}
+      <Box flex="1" bg="yellow.100" p={4}>
+        <Screen stream={localStream}></Screen>
+        <InfoBox connectionState={connectionStatus}></InfoBox>
+      </Box>
 
-      <button onClick={controlVideoSharing}>{buttonText}</button>
-      <Screen stream={localStream}></Screen>
-      <InfoBox connectionState={connectionStatus}></InfoBox>
-    </div>
+      {/* Sivupalkkijutut */}
+      <Box
+        width="200px"
+        bg="green.200"
+        p={4}
+        display="flex"
+        flexDirection="column"
+        height="100vh"
+      >
+        {/* Käyttäjälista */}
+        <VStack 
+        spacing={2} 
+        align="stretch" 
+        flex="1" 
+        overflowY="auto"
+        >
+          <Link to='/'>
+            <Button colorPalette="teal" 
+                    size="xl" 
+                    variant="surface">
+                Poistu huoneesta
+            </Button>
+          </Link>
+          <Button 
+          colorPalette="teal" 
+          size="xl" 
+          variant="surface"
+          onClick={controlVideoSharing}>
+            {buttonText}
+          </Button>
+        </VStack>
+      </Box>
+    </Box>
   )
 }
 
