@@ -167,11 +167,13 @@ const Host = () => {
     setStreamingUser(user)
   }
 
+  const [sidebarView, setSidebarView] = useState("kayttajat") 
+
   return (
     <Box display="flex" minH="100vh">
-      {/* Jaettu näyttö + liittymiskoodijutut */}
+      {/* Jaettu näyttö */}
       <Box flex="1" bg="yellow.100" p={4}>
-        <Screen stream={remoteStream}></Screen>
+        <Screen stream={remoteStream} />
       </Box>
 
       {/* Sivupalkkijutut */}
@@ -183,46 +185,75 @@ const Host = () => {
         flexDirection="column"
         height="100vh"
       >
-        {/* Käyttäjälista */}
-        <VStack 
-        spacing={2} 
-        align="stretch" 
-        flex="1" 
-        overflowY="auto"
-        >
-          <Text fontWeight="bold">Liittyneet käyttäjät:</Text>
-          {users.map((user) => (
-            <Box key={user.username} p={2} bg="white" borderRadius="md">
-              <Text>{user.username}</Text>
-              {user.wantsToStream && (
-                <Box mt={1} display="flex" gap={2}>
-                  <Button 
-                  colorPalette="green" 
-                  size="xs" 
-                  variant="surface"
-                  onClick={() => handleAnswer(true, user)}>Aloita jako</Button>
-                  <Button 
-                  colorPalette="red" 
-                  size="xs" 
-                  variant="surface"
-                  onClick={() => handleAnswer(false, user)}>Hylkää</Button>
+        {/* Toggle napit */}
+        <Box display="flex" gap={1} mb={4}>
+          <Button
+            onClick={() => setSidebarView("kayttajat")}
+            colorPalette={sidebarView === "kayttajat" ? "teal" : "gray"}
+            variant={sidebarView === "kayttajat" ? "solid" : "outline"}
+          >
+            Käyttäjät
+          </Button>
+          <Button
+            onClick={() => setSidebarView("asetukset")}
+            colorPalette={sidebarView === "asetukset" ? "teal" : "gray"}
+            variant={sidebarView === "asetukset" ? "solid" : "outline"}
+          >
+            Asetukset
+          </Button>
+        </Box>
+
+        {/* Sidebar content */}
+        <Box flex="1" overflowY="auto">
+          {sidebarView === "kayttajat" && (
+            <VStack spacing={2} align="stretch">
+              <Text fontWeight="bold">Liittyneet käyttäjät:</Text>
+              {users.map((user) => (
+                <Box key={user.username} p={2} bg="white" borderRadius="md">
+                  <Text>{user.username}</Text>
+                  {user.wantsToStream && (
+                    <Box mt={1} display="flex" gap={2}>
+                      <Button
+                        colorPalette="green"
+                        size="xs"
+                        onClick={() => handleAnswer(true, user)}
+                      >
+                        Aloita jako
+                      </Button>
+                      <Button
+                        colorPalette="red"
+                        size="xs"
+                        onClick={() => handleAnswer(false, user)}
+                      >
+                        Hylkää
+                      </Button>
+                    </Box>
+                  )}
                 </Box>
-              )}
-            </Box>
-          ))}
-        </VStack>
+              ))}
+            </VStack>
+          )}
+
+          {sidebarView === "asetukset" && (
+            <VStack spacing={2} align="stretch">
+              <Text fontWeight="bold">Asetukset:</Text>
+              <Button>Asetus 1</Button>
+              <Button>Asetus 2</Button>
+            </VStack>
+          )}
+        </Box>
 
         {/* liitymiskoodi */}
-        <Box mt="auto" display="flex" justifyContent="center">
+        <Box mt={2} display="flex" justifyContent="center">
           <VStack>
             <Heading size="2xl">Liittymiskoodi:</Heading>
-            <Heading size="4xl" borderRadius="lg" bg="teal.300" p={2}>{roomID}</Heading>
+            <Heading size="4xl" borderRadius="lg" bg="teal.300" p={2}>
+              {roomID}
+            </Heading>
           </VStack>
         </Box>
 
-        
-
-        {/* QR koodi liitymislikki */}
+        {/* QR koodi liitymislinkki */}
         <Box mt={2} display="flex" justifyContent="center">
           <QrCode.Root value={"http://localhost:5173/room/" + roomID}>
             <QrCode.Frame>
@@ -232,20 +263,16 @@ const Host = () => {
         </Box>
 
         {/* Takaisin nappi */}
-        <Box mt="auto" display="flex" justifyContent="center">
+        <Box mt={2} display="flex" justifyContent="center">
           <Link to="/">
-            <Button 
-            colorPalette="teal" 
-            size="lg" 
-            variant="surface"
-            >
+            <Button colorPalette="teal" size="lg">
               Takaisin
             </Button>
           </Link>
         </Box>
       </Box>
     </Box>
-  )
+)
 }
 
 export default Host
