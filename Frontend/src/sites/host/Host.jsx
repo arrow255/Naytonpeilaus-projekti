@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
 import { Box, VStack, Text, Button, Heading, QrCode } from "@chakra-ui/react"
 import handleRCPOffer from "./handleMessages.js"
+import config from "@/components/servers.js"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
@@ -10,26 +11,6 @@ import { Link } from "react-router-dom"
 
 // Styling
 import "./host.css"
-
-const renderUser = (user, handleAnswer) => {
-  const username = user.username
-
-  if (!user.wantsToStream) {
-    return (
-      <div key={username}>
-        <p>{username}</p>
-      </div>
-    )
-  }
-
-  return (
-    <div key={username}>
-      <p>{username}</p>
-      <button onClick={() => handleAnswer(true, user)}>Accept</button>
-      <button onClick={() => handleAnswer(false, user)}>Decline</button>
-    </div>
-  )
-}
 
 const Host = () => {
   const [remoteStream, setRemoteStream] = useState(null)
@@ -53,7 +34,7 @@ const Host = () => {
             username: last.username,
             wantsToStream: false,
             sdp: null,
-            RTC: new RTCPeerConnection(),
+            RTC: new RTCPeerConnection(config),
             PendingICEcandidates: [],
           },
         ])
@@ -167,7 +148,27 @@ const Host = () => {
     setStreamingUser(user)
   }
 
+<<<<<<< HEAD
   const [sidebarView, setSidebarView] = useState("kayttajat") 
+=======
+  const stopUserStream = () => {
+    // Stop the stream
+    if (!streamingUser) return
+
+    // TODO: implement the new message
+    sendMessage({
+      type: "STOP_SHARING",
+      username: streamingUser.username,
+    })
+
+    resetStream()
+  }
+
+  const resetStream = () => {
+    setRemoteStream(null)
+    setStreamingUser(null)
+  }
+>>>>>>> fd1a2385aac4f0a9f9ab4c9813ee0019b8f71975
 
   return (
     <Box display="flex" minH="100vh">
