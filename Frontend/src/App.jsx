@@ -16,15 +16,6 @@ function App() {
         >
           Kirjaudu sisään
         </Button>
-
-        <Button 
-        as={Link} to="/create_room" 
-        colorPalette="teal" 
-        size="xl" 
-        variant="surface"
-        > 
-          Luo huone   
-        </Button>
       </VStack>
         
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="48vh">
@@ -46,6 +37,22 @@ function App() {
               <PinInput.Input index={3} w="80px" h="80px" fontSize="3xl" borderWidth="3px" borderColor="black"/>
             </PinInput.Control>
           </PinInput.Root>
+
+          <Box padding="4" color="black" fontSize="3xl" justifyContent="center" alignItems="center">
+            TAI
+          </Box>
+
+          <Button 
+          as={Link} to="/create_room" 
+          colorPalette="teal" 
+          variant="surface"
+          fontSize = {30}
+          px={20}
+          py={10}
+          > 
+            Luo huone   
+          </Button>
+
         </VStack>
       </Box>
     </Box>
