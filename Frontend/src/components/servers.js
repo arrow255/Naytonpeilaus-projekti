@@ -6,7 +6,7 @@ const config = {
     {
       urls: "turn:openrelay.metered.ca:80",
       username: "openrelayproject",
-      password: "openrelayproject",
+      credential: "openrelayproject",
     },
   ],
 }
