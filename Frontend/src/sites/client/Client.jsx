@@ -2,13 +2,13 @@ import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
 import { useRef } from "react"
+import config from "@/components/servers.js"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
 
 // Styling
 import "./client.css"
-
 
 const InfoBox = ({ connectionState }) => {
   const messages = {
@@ -22,13 +22,17 @@ const InfoBox = ({ connectionState }) => {
 
   return (
     <div
-      style={{ backgroundColor: "grey", padding: "1rem", borderRadius: "8px",  width: '300px' }}
+      style={{
+        backgroundColor: "grey",
+        padding: "1rem",
+        borderRadius: "8px",
+        width: "300px",
+      }}
     >
       <h3>{text}</h3>
     </div>
   )
 }
-
 
 const Client = () => {
   const RTC = useRef(null)
@@ -50,7 +54,7 @@ const Client = () => {
   useEffect(() => {
     // Initialize RTC connection
     if (!RTC.current) {
-      RTC.current = new RTCPeerConnection()
+      RTC.current = new RTCPeerConnection(config)
 
       // Setup ICE candidate handler
       RTC.onicecandidate = (event) => {

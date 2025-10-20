@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
 import { Box, VStack, Text, Button, Heading } from "@chakra-ui/react"
 import handleRCPOffer from "./handleMessages.js"
+import config from "@/components/servers.js"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
@@ -33,7 +34,7 @@ const Host = () => {
             username: last.username,
             wantsToStream: false,
             sdp: null,
-            RTC: new RTCPeerConnection(),
+            RTC: new RTCPeerConnection(config),
             PendingICEcandidates: [],
           },
         ])
@@ -169,7 +170,6 @@ const Host = () => {
     setRemoteStream(null)
     setStreamingUser(null)
   }
-
 
   return (
     <Box display='flex' minH='100vh' color='black'>
