@@ -33,7 +33,7 @@ export const WebSocketProvider = ({ children }) => {
 
         // append to history
         setMessages((prev) => [...prev, msg])
-      } catch (e) {
+      } catch {
         console.error("❌ Failed to parse message:", event.data)
       }
     }
