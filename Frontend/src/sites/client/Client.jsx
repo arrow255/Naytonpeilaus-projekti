@@ -39,8 +39,7 @@ const Client = () => {
   const RTC = useRef(null)
   const pendingCandidates = useRef([])
 
-  // TODO: Better way to pass username, dont rely on localStorage
-  const savedUsername = localStorage.getItem("username")
+  const savedUsername = sessionStorage.getItem("username")
 
   // WebRTC
   const [localStream, setLocalStream] = useState(null)
@@ -77,7 +76,8 @@ const Client = () => {
         }
       }
     }
-  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (messages.length < 1) return // Not yet message for reading
