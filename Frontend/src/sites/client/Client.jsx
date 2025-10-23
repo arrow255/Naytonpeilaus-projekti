@@ -69,7 +69,7 @@ const Client = () => {
       // If connection fails, change the connection state
       RTC.onconnectionstatechange = () => {
         if (
-          ["disconnected", "failed", "closed"].includes(RTC.connectionState)
+          ["disconnected", "failed", "closed"].includes(RTC.current.connectionState)
         ) {
           setConnectionStatus("ended")
           setLocalStream(null)
