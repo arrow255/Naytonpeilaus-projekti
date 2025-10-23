@@ -14,6 +14,7 @@ const JoinRoom = () => {
     const {sendMessage, messages} = useWebSocket();
     const [virheilmoitus, setVirheilmoitus] = useState(null) 
 
+
     const joinRoom = async () => {
         sendMessage({type: "JOIN_ROOM", roomid: roomID, username: username})
     }
@@ -54,8 +55,6 @@ const JoinRoom = () => {
                     Liity huoneeseen
                 </Button>
             </div>
-
-            
 
             <h3>{virheilmoitus}</h3>
 

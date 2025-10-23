@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
 import { useRef } from "react"
 import config from "@/components/servers.js"
-import { Box, VStack, Text, Button, Heading } from "@chakra-ui/react"
+import { Box, VStack, Button } from "@chakra-ui/react"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
@@ -124,7 +124,21 @@ const Client = () => {
     setConnectionStatus("ended")
   }
 
+  const leaveRoom = () => {
+    // Send message to host about leaving the room
+    sendMessage({
+      type: "USER_LEFT",
+      username: savedUsername,
+    })
+  }
+
   const handleICEcandidate = (candidate) => {
+    /*
+      Handles incoming ice candidates by either
+        - Add them to relevant RTC
+        - Buffer them until remote description is set
+    */
+
     if (RTC.current.remoteDescription) {
       // Add the candidate to RTC
       RTC.current.addIceCandidate(new RTCIceCandidate(candidate))
@@ -152,6 +166,7 @@ const Client = () => {
       return
     }
 
+    // TODO try catch if user refuses to choose screen
     const stream = await navigator.mediaDevices.getDisplayMedia({
       video: true,
       audio: true,
@@ -221,7 +236,7 @@ const Client = () => {
           <Link to='/'>
             <Button colorPalette="teal" 
                     size="xl" 
-                    variant="surface">
+                    variant="surface" onClick={leaveRoom}>
                 Poistu huoneesta
             </Button>
           </Link>

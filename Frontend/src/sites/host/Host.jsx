@@ -22,9 +22,9 @@ const Host = () => {
   const { roomID } = useParams()
 
   useEffect(() => {
-    if (messages.length < 1) return // Ei vielä viestejä käsiteltäväksi
+    if (messages.length < 1) return // Not yet messages to be seen
 
-    // Katsotaan viesti joka saapui
+    // Check the message that arrived
     const last = messages[messages.length - 1]
 
     switch (last.type) {
