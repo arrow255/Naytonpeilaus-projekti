@@ -58,7 +58,7 @@ const Client = () => {
       RTC.current = new RTCPeerConnection(config)
 
       // Setup ICE candidate handler
-      RTC.onicecandidate = (event) => {
+      RTC.current.onicecandidate = (event) => {
         if (event.candidate) {
           sendMessage({
             type: "ICE_CANDIDATE",
@@ -68,9 +68,9 @@ const Client = () => {
       }
 
       // If connection fails, change the connection state
-      RTC.onconnectionstatechange = () => {
+      RTC.current.onconnectionstatechange = () => {
         if (
-          ["disconnected", "failed", "closed"].includes(RTC.connectionState)
+          ["disconnected", "failed", "closed"].includes(RTC.current.connectionState)
         ) {
           setConnectionStatus("ended")
           setLocalStream(null)
@@ -79,19 +79,24 @@ const Client = () => {
     }
   })
 
+  const lastMessage = useRef(0)
   useEffect(() => {
-    if (messages.length < 1) return // Not yet message for reading
 
     // Check the message
-    const last = messages[messages.length - 1]
+    for (let i = lastMessage.current; i < messages.length; ++i) {
+      const message = messages[i]
+      console.debug(message)
 
-    if (last.type == "RCP_ANSWER") {
-      handleAnswer(last)
-    }
+      if (message.type == "RCP_ANSWER") {
+        handleAnswer(message)
+      }
 
-    if (last.type == "ICE_CANDIDATE") {
-      handleICEcandidate(last.candidate)
+      if (message.type == "ICE_CANDIDATE") {
+        handleICEcandidate(message.candidate)
+      }
     }
+    lastMessage.current = messages.length
+
   }, [messages])
 
   const handleAnswer = async (answer) => {
