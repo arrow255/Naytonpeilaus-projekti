@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useParams } from "react-router-dom"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
 import { Box, VStack, Text, Button, Heading, QrCode } from "@chakra-ui/react"
@@ -21,63 +21,77 @@ const Host = () => {
   const [users, setUsers] = useState([])
   const { roomID } = useParams()
 
+  const lastMessage = useRef(0);
   useEffect(() => {
-    if (messages.length < 1) return // Ei vielä viestejä käsiteltäväksi
+    for (let i = lastMessage.current; i < messages.length; ++i) {
+      // Katsotaan viesti joka saapui
+      const last = messages[i]
 
-    // Katsotaan viesti joka saapui
-    const last = messages[messages.length - 1]
+      switch (last.type) {
+        case "USER_JOINED":
+          const newRTC = new RTCPeerConnection(config)
+          // Set up ICE candidate handler immediately when RTC is created
+          newRTC.onicecandidate = (event) => {
+            if (event.candidate) {
+              sendMessage({
+                type: "ICE_CANDIDATE",
+                username: last.username,
+                candidate: event.candidate,
+              })
+            }
+          }
 
-    switch (last.type) {
-      case "USER_JOINED":
-        setUsers((prevUsers) => [
-          ...prevUsers,
-          {
-            username: last.username,
-            wantsToStream: false,
-            sdp: null,
-            RTC: new RTCPeerConnection(config),
-            PendingICEcandidates: [],
-          },
-        ])
-        break
+          setUsers((prevUsers) => [
+            ...prevUsers,
+            {
+              username: last.username,
+              wantsToStream: false,
+              sdp: null,
+              RTC: newRTC,
+              PendingICEcandidates: [],
+            },
+          ])
+          break
 
-      case "USER_LEFT":
-        setUsers((prevUsers) =>
-          prevUsers.filter((u) => u.username !== last.username)
-        )
-        break
-
-      case "RCP_OFFER":
-        setUsers((prevUsers) =>
-          prevUsers.map((u) =>
-            u.username === last.username
-              ? { ...u, wantsToStream: true, sdp: last.sdp }
-              : u
+        case "USER_LEFT":
+          setUsers((prevUsers) =>
+            prevUsers.filter((u) => u.username !== last.username)
           )
-        )
-        break
+          break
 
-      case "ICE_CANDIDATE":
-        updateICEcandidates(last)
-        break
+        case "RCP_OFFER":
+          setUsers((prevUsers) =>
+            prevUsers.map((u) =>
+              u.username === last.username
+                ? { ...u, wantsToStream: true, sdp: last.sdp }
+                : u
+            )
+          )
+          break
 
-      case "STOP_SHARING":
-        // Check if the current user stops stream, otherwise continue
-        if (streamingUser && last.username === streamingUser.username) {
-          setStreamingUser(null)
-          setRemoteStream(null)
-        } 
+        case "ICE_CANDIDATE":
+          updateICEcandidates(last)
+          break
 
-        // If user pulled their request for streaming away
-        removeUserRequest(last.username)
-        break
+        case "STOP_SHARING":
+          // Check if the current user stops stream, otherwise continue
+          if (streamingUser && last.username === streamingUser.username) {
+            setStreamingUser(null)
+            setRemoteStream(null)
+          } 
 
-      default:
-        console.log("Other message type: ", last.type)
+          // If user pulled their request for streaming away
+          removeUserRequest(last.username)
+          break
+
+        default:
+          console.log("Other message type: ", last.type)
+      }
+
+      // We want this to run only when we get messages
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }
-
-    // We want this to run only when we get messages
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    lastMessage.current = messages.length
   }, [messages])
 
   const updateICEcandidates = (message) => {
@@ -120,17 +134,6 @@ const Host = () => {
     const stream = new MediaStream()
     user.RTC.ontrack = (event) => {
       event.streams[0].getTracks().forEach((track) => stream.addTrack(track))
-    }
-
-    // Send ICE candidates
-    user.RTC.onicecandidate = (event) => {
-      if (event.candidate) {
-        sendMessage({
-          type: "ICE_CANDIDATE",
-          username: user.username,
-          candidate: event.candidate,
-        })
-      }
     }
 
     // Show clients stream

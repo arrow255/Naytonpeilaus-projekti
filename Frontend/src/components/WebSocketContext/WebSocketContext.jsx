@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react"
 
 const WebSocketContext = createContext(null)
-const SERVER_PATH = "ws://localhost:8000/ws"
+const SERVER_PATH = process.env.NODE_ENV === 'development' ? "ws://localhost:8000/ws/" : "wss://" + location.hostname + "/ws/";
 
 export const WebSocketProvider = ({ children }) => {
   const wsRef = useRef(null)

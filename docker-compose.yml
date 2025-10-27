@@ -1,0 +1,23 @@
+services:
+  fastapi-app:
+    build: ./Backend
+    container_name: fastapi-app
+    networks:
+      - app-network
+    environment:
+      FASTAPI_ENV: "production"
+  nginx:
+    build: .
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - fastapi-app
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
