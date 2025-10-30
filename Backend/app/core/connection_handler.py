@@ -22,12 +22,13 @@ async def handle_connection(ws: WebSocket, user_id: str):
     user = ws.user_object
     await ws.accept()
     room_manager:RoomManager = ws.app.state.room_manager
-    logger.debug(f"WebSocket connected: {user.user_id}")
+    logger.info(f"WebSocket connected: {user.user_id}")
     try:
         while True:
             data = await ws.receive_json()
-            logger.debug(f"Received data from {user.user_id}: {data}")
             msg_type = data.get("type")
+            logger.info(f"{user.user_id} :: msg: {msg_type}")
+            logger.debug(f"Received data from {user.user_id}: {data}")
             if msg_type == "CREATE_ROOM":
                 try:
                     username = _check_username(data.get("username"))
@@ -69,7 +70,6 @@ async def handle_connection(ws: WebSocket, user_id: str):
                         await user.room.users[target_user].send_json({"type": "STOP_SHARING"})
                     else:
                         await ws.send_json({"type": "ERROR", "message": "User not found"})
-
                 else:
                     await user.room.send_host({"type": "STOP_SHARING", "username": user.name})
             elif msg_type == "ALLOW_SHARING":
@@ -93,11 +93,13 @@ async def handle_connection(ws: WebSocket, user_id: str):
                     target_user = data.get("username")
                     if target_user in user.room.users:
                         candidate_data = data.get("candidate")
+                        logger.debug(f"Sending ICE_CANDIDATE to host: {candidate_data}")
                         await user.room.users[target_user].send_json({"type": "ICE_CANDIDATE", "candidate": candidate_data})
                     else:
                         await ws.send_json({"type": "ERROR", "message": "User not found"})
                 else:
                     candidate_data = data.get("candidate")
+                    logger.debug(f"Sending ICE_CANDIDATE to {user.name}: {candidate_data}")
                     await user.room.send_host({"type": "ICE_CANDIDATE", "candidate": candidate_data, "username": user.name})
             else:
                 logger.debug(f"Unknown message type: {msg_type}")
