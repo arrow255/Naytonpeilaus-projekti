@@ -39,7 +39,7 @@ const Client = () => {
   const RTC = useRef(null)
   const pendingCandidates = useRef([])
 
-  const savedUsername = sessionStorage.getItem("username")
+  const savedUsername = useRef(sessionStorage.getItem("username"))
 
   // WebRTC
   const [localStream, setLocalStream] = useState(null)
@@ -116,7 +116,7 @@ const Client = () => {
     // Send message to host
     sendMessage({
       type: "STOP_SHARING",
-      username: savedUsername,
+      username: savedUsername.current,
     })
 
     setLocalStream(null)
@@ -128,7 +128,7 @@ const Client = () => {
     // Send message to host about leaving the room
     sendMessage({
       type: "USER_LEFT",
-      username: savedUsername,
+      username: savedUsername.current,
     })
   }
 

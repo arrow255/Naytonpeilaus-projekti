@@ -12,18 +12,11 @@ const JoinRoom = () => {
     const [roomID, setRoomID] = useState('')
     const [username, setUsername] = useState('')
     const {sendMessage, messages} = useWebSocket();
-    const [virheilmoitus, setVirheilmoitus] = useState(null) 
-
+    const [virheilmoitus, setVirheilmoitus] = useState(null)
 
     const joinRoom = async () => {
         sendMessage({type: "JOIN_ROOM", roomid: roomID, username: username})
     }
-
-    useEffect(() => {
-        // Run with initial render only
-        const savedUsername = sessionStorage.getItem('username')
-        if (savedUsername) setUsername(savedUsername)
-    }, [])
 
     useEffect(() => {
         if (messages.length < 1) return // Not yet messages to be handled
@@ -61,6 +54,8 @@ const JoinRoom = () => {
                     Liity huoneeseen
                 </Button>
             </div>
+
+            
 
             <h3>{virheilmoitus}</h3>
 
