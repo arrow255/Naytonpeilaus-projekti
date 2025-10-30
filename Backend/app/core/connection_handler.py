@@ -64,7 +64,12 @@ async def handle_connection(ws: WebSocket, user_id: str):
                 await user.room.send_host({"type": "REQUEST_SHARING", "username": user.name})
             elif msg_type == "STOP_SHARING":
                 if user.room.host == ws:
-                    await user.room.broadcast({"type": "STOP_SHARING"})
+                    target_user = data.get("username")
+                    if target_user in user.room.users:
+                        await user.room.users[target_user].send_json({"type": "STOP_SHARING"})
+                    else:
+                        await ws.send_json({"type": "ERROR", "message": "User not found"})
+
                 else:
                     await user.room.send_host({"type": "STOP_SHARING", "username": user.name})
             elif msg_type == "ALLOW_SHARING":

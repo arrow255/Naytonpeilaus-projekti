@@ -20,6 +20,12 @@ const JoinRoom = () => {
     }
 
     useEffect(() => {
+        // Run with initial render only
+        const savedUsername = sessionStorage.getItem('username')
+        if (savedUsername) setUsername(savedUsername)
+    }, [])
+
+    useEffect(() => {
         if (messages.length < 1) return // Not yet messages to be handled
 
         // Katsotaan viesti joka saapui
