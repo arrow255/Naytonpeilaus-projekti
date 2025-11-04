@@ -3,3 +3,6 @@ class InvalidUsernameError(Exception):
 
 class UsernameInUseError(Exception):
     pass
+
+class RoomNotFoundError(Exception):
+    pass
