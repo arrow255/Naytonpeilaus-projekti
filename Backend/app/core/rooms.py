@@ -15,7 +15,7 @@ class Room:
         self.roomid = roomid
         self.users = {}
         self.host = host
-    async def remove_user(self, ws: WebSocket):
+    async def _remove_user(self, ws: WebSocket):
         user = ws.user_object
         if ws == self.host:
             self.host = None
@@ -26,6 +26,7 @@ class Room:
             del self.users[user.name]
             if self.host and self.host != ws:
                 await self.host.send_json({"type": "USER_LEFT", "username": user.name})        
+        user.room = None
 
     async def broadcast(self, message: dict):
         for user in self.users.values():
@@ -36,10 +37,10 @@ class Room:
             logger.debug(f"Sending to host: {message}")
             await self.host.send_json(message)
     
-    async def add_user(self, user: WebSocket):
+    async def _add_user(self, user: WebSocket):
         self.users[user.user_object.name] = user
 
-    def is_empty(self) -> bool:
+    def _is_empty(self) -> bool:
         return not self.users and not self.host
 
 
@@ -51,8 +52,8 @@ class RoomManager:
         user = host.user_object
         if user.room:
             room = user.room
-            await user.room.remove_user(host)
-            if room.is_empty():
+            await room._remove_user(host)
+            if room._is_empty():
                 del self._rooms[room.roomid]
                 logger.debug(f"Room removed: {room.roomid}")
         roomid = _generate_room_id()
@@ -75,15 +76,15 @@ class RoomManager:
         user = ws.user_object
         roomid = roomid.strip().lower()
         if user.room:
-            await user.room.remove_user(ws)
-            if user.room.is_empty():
-                del self._rooms[user.room.roomid]
-                logger.debug(f"Room removed: {user.room.roomid}")
-            user.room = None
+            room = user.room
+            await room._remove_user(ws)
+            if room._is_empty():
+                del self._rooms[room.roomid]
+                logger.debug(f"Room removed: {room.roomid}")
         room = self.get(roomid)
         if user.name in room.users:
             raise UsernameInUseError("Username already exists in this room")
-        await room.add_user(ws)
+        await room._add_user(ws)
         user.room = room
         logger.debug(f"User added to room {roomid}: {user.name}")
         return True
@@ -92,14 +93,14 @@ class RoomManager:
         room = self.get(roomid)
         await room.send_host(message)
 
-    async def remove_user(self, roomid: str, ws: WebSocket):
-        room = self.get(roomid)
-        await room.remove_user(ws)
-        if room.is_empty():
-            del self._rooms[roomid]
-            logger.debug(f"Room removed: {roomid}")
-
-
+    async def remove_user(self, ws: WebSocket):
+        user = ws.user_object
+        if user.room:
+            room = user.room
+            await room._remove_user(ws)
+            if room._is_empty():
+                del self._rooms[room.roomid]
+                logger.debug(f"Room removed: {room.roomid}")
 
 
 

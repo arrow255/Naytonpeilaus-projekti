@@ -132,7 +132,7 @@ const Client = () => {
   const leaveRoom = () => {
     // Send message to host about leaving the room
     sendMessage({
-      type: "USER_LEFT",
+      type: "LEAVE_ROOM",
       username: savedUsername.current,
     })
   }

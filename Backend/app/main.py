@@ -25,6 +25,6 @@ else:
     async def index():
         return RedirectResponse(url="http://localhost:5173")
 
-# TODO add session, index page, etc.
+# TODO add session
 
 
