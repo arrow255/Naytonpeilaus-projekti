@@ -1,7 +1,7 @@
 from fastapi import WebSocket, WebSocketDisconnect
 import logging
 from app.core.rooms import Room, RoomManager
-from app.core.exceptions import InvalidUsernameError
+from app.core.exceptions import InvalidUsernameError, RoomNotFoundError, UsernameInUseError
 from app.core.user import User
 
 logger = logging.getLogger("app")
@@ -50,12 +50,12 @@ async def handle_connection(ws: WebSocket, user_id: str):
                     await room_manager.add_user(roomid, ws)
                     await ws.send_json({"type": "ROOM_JOINED", "roomid": roomid})
                     await user.room.send_host({"type": "USER_JOINED", "username": username})
-                except InvalidUsernameError as e:
+                except (InvalidUsernameError, UsernameInUseError) as e:
                     await ws.send_json({"type": "INVALID_USERNAME", "message": str(e)})                
+                except RoomNotFoundError as e:
+                    await ws.send_json({"type": "INVALID_ROOM_ID", "message": "Room with given ID not found"})
                 except RuntimeError as e:
-                    # TODO: improve this logic. Currently the function throws RuntimeError on username collision
-                    # but this is bad logic
-                    await ws.send_json({"type": "INVALID_USERNAME", "message": str(e)})
+                    await ws.send_json({"type": "ERROR", "message": str(e)})
                 continue
             ## Handle messages that requires the user to be in a room
             if not user.room:
