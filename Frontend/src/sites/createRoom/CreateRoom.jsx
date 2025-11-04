@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext"
 import { useEffect } from "react"
-import { Box, VStack, Heading, Button, ButtonGroup } from "@chakra-ui/react"
+import { Box, VStack, Heading, Button, ButtonGroup, Center, Text, Checkbox  } from "@chakra-ui/react"
 
 
 // Styling
@@ -29,23 +29,36 @@ const CreateRoom = () => {
     }, [messages, navigate]) 
 
     return (
-        <Box bg="yellow.100" minH="100vh" w="100%" p={4}>
-            <h1>This is the Create room site</h1>
-            <Button colorPalette="teal" 
-                    size="xl" 
-                    variant="surface"
-                    onClick={createRoom}>
-                Luo huone
-            </Button>
+        <Box bg="yellow.100" minH="100vh" w="100%">
+            <Box p={4} textAlign="center" bgGradient="to-b" gradientFrom="orange.200" gradientTo="yellow.100">
+                <Text fontSize="5xl" fontWeight="bold">
+                    Jaa näyttösi helposti!
+                </Text>
+            </Box>
 
-            <Link to="/">
-                <Button colorPalette="teal" 
-                        size="xl" 
-                        variant="surface"
-                        onClick={() => navigate(-1)}>
-                    Takaisin
-                </Button>
-            </Link>
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="48vh">
+                <VStack>
+                    <Button colorPalette="teal" 
+                            fontSize = {30}
+                            px={20}
+                            py={10} 
+                            variant="surface"
+                            onClick={createRoom}>
+                        Luo huone
+                    </Button>
+
+                    <Link to="/">
+                        <Button colorPalette="teal" 
+                                fontSize = {30}
+                                px={20}
+                                py={10}  
+                                variant="surface"
+                                onClick={() => navigate(-1)}>
+                            Takaisin
+                        </Button>
+                    </Link>
+                </VStack>
+            </Box>
         </Box>
     )
 }
