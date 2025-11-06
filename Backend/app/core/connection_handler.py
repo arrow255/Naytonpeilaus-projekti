@@ -61,7 +61,10 @@ async def handle_connection(ws: WebSocket, user_id: str):
             if not user.room:
                 await ws.send_json({"type": "ERROR", "message": "You must join a room first"})
                 continue
-            if msg_type == "REQUEST_SHARING":
+            if msg_type == "LEAVE_ROOM":
+                await room_manager.remove_user(ws)
+                await ws.send_json({"type": "LEFT_ROOM"})
+            elif msg_type == "REQUEST_SHARING":
                 await user.room.send_host({"type": "REQUEST_SHARING", "username": user.name})
             elif msg_type == "STOP_SHARING":
                 if user.room.host == ws:
@@ -108,5 +111,5 @@ async def handle_connection(ws: WebSocket, user_id: str):
     except Exception as e:
         logger.error(f"WebSocket error: {e}")
     finally:
-        if user.room:
-            await user.room.remove_user(ws)
+        await room_manager.remove_user(ws)
+
