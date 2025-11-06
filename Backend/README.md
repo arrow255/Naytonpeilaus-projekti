@@ -92,6 +92,27 @@ Server notifies host:
 }
 ```
 
+### Leave Room
+Client sends:
+```json
+{
+  "type": "LEAVE_ROOM"
+}
+```
+Server responds:
+```json
+{
+  "type": "LEFT_ROOM"
+}
+```
+Server forwards the notification to host:
+```json
+{
+  "type": "USER_LEFT",
+  "username": "client-name"
+}
+```
+
 ### Request Sharing
 Client sends:
 ```json

@@ -7,7 +7,7 @@ import pytest
 
 client = TestClient(app)
 def test_creating_room():
-    with client.websocket_connect("/ws") as websocket:
+    with client.websocket_connect("/ws/") as websocket:
         websocket.send_json({
             "type": "CREATE_ROOM",
             "username": "my-name"
@@ -17,7 +17,7 @@ def test_creating_room():
         assert "roomid" in response
 
 def test_joining_room():
-    with client.websocket_connect("/ws") as websocket1:
+    with client.websocket_connect("/ws/") as websocket1:
         websocket1.send_json({
             "type": "CREATE_ROOM",
             "username": "host-name"
@@ -26,7 +26,7 @@ def test_joining_room():
         assert response1["type"] == "ROOM_CREATED"
         roomid = response1["roomid"]
 
-        with client.websocket_connect("/ws") as websocket2:
+        with client.websocket_connect("/ws/") as websocket2:
             websocket2.send_json({
                 "type": "JOIN_ROOM",
                 "roomid": roomid,
@@ -42,7 +42,7 @@ def test_joining_room():
 
 @pytest.fixture
 def create_room():
-    with client.websocket_connect("/ws") as websocket:
+    with client.websocket_connect("/ws/") as websocket:
         websocket.send_json({
             "type": "CREATE_ROOM",
             "username": "host-name"
@@ -55,7 +55,7 @@ def create_room():
 @pytest.fixture
 def join_room(create_room):
     roomid, host_ws = create_room
-    with client.websocket_connect("/ws") as client_ws:
+    with client.websocket_connect("/ws/") as client_ws:
         client_ws.send_json({
             "type": "JOIN_ROOM",
             "roomid": roomid,
@@ -80,7 +80,8 @@ def test_request_sharing(join_room):
 def test_stop_sharing_by_host(join_room):
     roomid, host_ws, client_ws = join_room
     host_ws.send_json({
-        "type": "STOP_SHARING"
+        "type": "STOP_SHARING",
+        "username": "client-name"
     })
     client_notification = client_ws.receive_json()
     assert client_notification["type"] == "STOP_SHARING"
@@ -105,7 +106,7 @@ def test_allow_sharing(join_room):
 
 def test_user_leaves_room(create_room):
     roomid, host_ws = create_room
-    with client.websocket_connect("/ws") as client_ws:
+    with client.websocket_connect("/ws/") as client_ws:
         client_ws.send_json({
             "type": "JOIN_ROOM",
             "roomid": roomid,
@@ -167,4 +168,35 @@ def test_host_sends_ice_candidate(join_room):
     assert client_notification["candidate"] == "candidate-data"
     assert 'username' not in client_notification
 
+def test_joining_another_room_leaves_old_room(join_room):
+    roomid, host_ws, client_ws = join_room
+    client_ws.send_json({
+        "type": "JOIN_ROOM",
+        "roomid": "noneexisting",
+        "username": "client-name"
+    })
+    response = host_ws.receive_json()
+    assert response["type"] == "USER_LEFT"
+    assert response["username"] == "client-name"
+    response = client_ws.receive_json()
+    assert response["type"] == "INVALID_ROOM_ID"
 
+def test_creating_new_room_removes_old_room(create_room):
+    roomid, host_ws = create_room
+    host_ws.send_json({
+        "type": "CREATE_ROOM",
+        "username": "host-name"
+    })
+    response = host_ws.receive_json()
+    assert response["type"] == "ROOM_CREATED"
+    assert response["roomid"] != roomid
+
+    with client.websocket_connect("/ws/") as user_ws:
+        user_ws.send_json({
+            "type": "JOIN_ROOM",
+            "roomid": roomid,
+            "username": "client-name"
+        })
+        response2 = user_ws.receive_json()
+        assert response2["type"] == "INVALID_ROOM_ID"
+        assert response2["message"] == "Room with given ID not found"

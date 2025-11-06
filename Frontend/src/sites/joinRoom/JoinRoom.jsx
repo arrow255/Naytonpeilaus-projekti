@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react";
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext";
-import { Box, VStack, Heading, Button, ButtonGroup, Input } from "@chakra-ui/react"
+import { Box, Button, Input } from "@chakra-ui/react"
 
 // Styling
 import "./joinRoom.css"
@@ -12,8 +12,7 @@ const JoinRoom = () => {
     const [roomID, setRoomID] = useState('')
     const [username, setUsername] = useState('')
     const {sendMessage, messages} = useWebSocket();
-    const [virheilmoitus, setVirheilmoitus] = useState(null) 
-
+    const [virheilmoitus, setVirheilmoitus] = useState(null)
 
     const joinRoom = async () => {
         sendMessage({type: "JOIN_ROOM", roomid: roomID, username: username})
@@ -41,7 +40,6 @@ const JoinRoom = () => {
         // Silence the warning, only run this effect when new messages show up
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [messages])
-
 
     return (
         <>
