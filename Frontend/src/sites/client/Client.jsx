@@ -235,6 +235,7 @@ const Client = () => {
       >
         {/* Button for different actions */}
         <VStack spacing={2} align='stretch' flex='1' overflowY='auto'>
+          <Box>Terve {savedUsername}!</Box>
           <Link to='/'>
             <Button colorPalette='teal' size='xl' variant='surface'>
               Poistu huoneesta
