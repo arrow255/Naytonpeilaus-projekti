@@ -21,7 +21,7 @@ const JoinRoom = () => {
 
     useEffect(() => {
         // Run with initial render only
-        const savedUsername = localStorage.getItem('username')
+        const savedUsername = sessionStorage.getItem('username')
         if (savedUsername) setUsername(savedUsername)
     }, [])
 
@@ -32,7 +32,7 @@ const JoinRoom = () => {
         const last = messages[messages.length - 1];
 
         if (last.type == 'ROOM_JOINED') {
-            localStorage.setItem('username', username);
+            sessionStorage.setItem('username', username);
             navigate(`/room/${last.roomid}`, { state: {username} })
         } else {
             setVirheilmoitus(last.message)
