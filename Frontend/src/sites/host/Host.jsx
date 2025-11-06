@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo } from "react"
 import { useParams } from "react-router-dom"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
 import { Box, VStack, Text, Button, Heading, QrCode } from "@chakra-ui/react"
@@ -21,26 +21,7 @@ const Host = () => {
   const [users, setUsers] = useState([])
   const { roomID } = useParams()
 
-  const lastMessage = useRef(0);
-
-  useEffect(() => {
-    // Order users everytime users is updated
-    console.log("Users is being sorted")
-
-    // First user who is currently streaming
-    if (streamingUser) {
-      console.log("Streaming user")
-    }
-
-
-    // Then all users who want to stream
-
-    // Rest in alpabetical
-
-
-    // Only update when users is updated
-  }, [users])
-
+  const lastMessage = useRef(0)
   useEffect(() => {
     for (let i = lastMessage.current; i < messages.length; ++i) {
       // Katsotaan viesti joka saapui
@@ -112,6 +93,26 @@ const Host = () => {
     // We want this to run only when we get messages
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages])
+
+  const sortedUsers = useMemo(() => {
+    // This function returns the sorted version of users
+    if (!users) return [];
+
+    return [...users].sort((a, b) => {
+      // 1. streaming user first
+      if (streamingUser) {
+        if (a.username === streamingUser.username) return -1;
+        if (b.username === streamingUser.username) return 1;
+      }
+
+      // 2. users who want to stream
+      if (a.wantsToStream && !b.wantsToStream) return -1;
+      if (!a.wantsToStream && b.wantsToStream) return 1;
+
+      // 3. alphabetical for the rest
+      return a.username.localeCompare(b.username);
+    });
+  }, [users, streamingUser]);
 
   const updateICEcandidates = (message) => {
     let user = users.find((u) => u.username == message.username)
@@ -231,7 +232,7 @@ const Host = () => {
           {sidebarView === "kayttajat" && (
             <VStack spacing={2} align="stretch">
               <Text fontWeight="bold">Liittyneet käyttäjät:</Text>
-              {users.map((user) => (
+              {sortedUsers.map((user) => (
                 <Box key={user.username} p={2} bg="white" borderRadius="md">
                   <Text>{user.username}</Text>
 
