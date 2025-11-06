@@ -94,6 +94,12 @@ const Client = () => {
       if (message.type == "ICE_CANDIDATE") {
         handleICEcandidate(message.candidate)
       }
+      
+      if (message.type == "STOP_SHARING") {
+        setConnectionStatus("ended")
+        setButtonText("Aloita jakaminen")
+        setLocalStream(null)
+      }
     }
     lastMessage.current = messages.length
 
