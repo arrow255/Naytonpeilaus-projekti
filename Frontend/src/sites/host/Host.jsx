@@ -16,12 +16,31 @@ const Host = () => {
   const [remoteStream, setRemoteStream] = useState(null)
   const { sendMessage, messages } = useWebSocket()
   const [streamingUser, setStreamingUser] = useState(null)
-  const [sidebarView, setSidebarView] = useState("kayttajat") 
+  const [sidebarView, setSidebarView] = useState("kayttajat")
 
   const [users, setUsers] = useState([])
   const { roomID } = useParams()
 
   const lastMessage = useRef(0);
+
+  useEffect(() => {
+    // Order users everytime users is updated
+    console.log("Users is being sorted")
+
+    // First user who is currently streaming
+    if (streamingUser) {
+      console.log("Streaming user")
+    }
+
+
+    // Then all users who want to stream
+
+    // Rest in alpabetical
+
+
+    // Only update when users is updated
+  }, [users])
+
   useEffect(() => {
     for (let i = lastMessage.current; i < messages.length; ++i) {
       // Katsotaan viesti joka saapui
@@ -89,8 +108,9 @@ const Host = () => {
       }
     }
     lastMessage.current = messages.length
-  // We want this to run only when we get messages
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // We want this to run only when we get messages
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages])
 
   const updateICEcandidates = (message) => {
@@ -106,10 +126,6 @@ const Host = () => {
     const nextUsers = users.map((o) => {
       if (o.username === username) {
         o.wantsToStream = false
-        sendMessage({  
-          "type": "STOP_SHARING",
-          "username": username
-        })
       }
       return o
     })
@@ -123,14 +139,17 @@ const Host = () => {
       removeUserRequest(user.username)
 
       // Send message to user about declining
-      // TODO -> sendMessage()
+      sendMessage({  
+          "type": "STOP_SHARING",
+          "username": user.username
+        })
 
       return
     }
 
     if (streamingUser) {
-      window.alert("There is already stream running")
-      return
+      if (confirm(`Tällä hetkellä näyttöä jakaa ${streamingUser.username}, haluatko lopettaa tämän hetkisen näytönjaon ja vaihtaa käyttäjän ${user.username} näyttöön?`)) { stopUserStream() }
+      else { return }
     }
 
     // Get tracks from remote stream, add to video stream
@@ -215,6 +234,17 @@ const Host = () => {
               {users.map((user) => (
                 <Box key={user.username} p={2} bg="white" borderRadius="md">
                   <Text>{user.username}</Text>
+
+                  {streamingUser && streamingUser.username == user.username && (
+                      <Button
+                        colorPalette="blue"
+                        size="xs"
+                        onClick={stopUserStream}
+                      >
+                        Keskeytä jako
+                      </Button>
+                  )}
+
                   {user.wantsToStream && (
                     <Box mt={1} display="flex" gap={2}>
                       <Button
@@ -233,6 +263,7 @@ const Host = () => {
                       </Button>
                     </Box>
                   )}
+
                 </Box>
               ))}
             </VStack>
