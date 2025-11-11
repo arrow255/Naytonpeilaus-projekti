@@ -18,6 +18,8 @@
     "joinCode": "Liittymiskoodi",
     "joinedUsers": "Liittyneet käyttäjät",
     "startSharing": "Aloita jako",
+    "instructions": "Liity huoneeseen syöttämällä liittymiskoodi ja käyttäjänimi",
+    "createRoomInstructions": "Tai luo huone",
 
     "pinError": "Koodin tulee olla neljän pitkä",
     "usernameTooShortError": "Käyttäjänimen tulee olla vähintään 3 merkkiä pitkä",
