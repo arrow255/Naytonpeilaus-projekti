@@ -17,6 +17,11 @@
     "acceptShare": "Accept sharing",
     "joinCode": "Join code",
     "joinedUsers": "Joined users",
-    "startSharing": "Start sharing"
+    "startSharing": "Start sharing",
+
+    "pinError": "Pin length must be 4",
+    "usernameTooShortError": "Username must be atleast 3 characters",
+    "usernameAlreadyExists": "Username already exists in room",
+    "roomDoesntExists": "Room with such pin doesn't exist"
   }
 }

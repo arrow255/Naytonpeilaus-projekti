@@ -17,6 +17,11 @@
     "acceptShare": "Hyväksy jako",
     "joinCode": "Liittymiskoodi",
     "joinedUsers": "Liittyneet käyttäjät",
-    "startSharing": "Aloita jako"
+    "startSharing": "Aloita jako",
+
+    "pinError": "Koodin tulee olla neljän pitkä",
+    "usernameTooShortError": "Käyttäjänimen tulee olla vähintään 3 merkkiä pitkä",
+    "usernameAlreadyExists": "Käyttäjänimi on jo käytössä",
+    "roomDoesntExists": "Annetulla koodilla ei löydy huonetta"
   }
 }
