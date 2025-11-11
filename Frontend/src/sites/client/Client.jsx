@@ -24,12 +24,15 @@ const InfoBox = ({ connectionState }) => {
   return (
     <div
       style={{
-        backgroundColor: "grey",
+        backgroundColor: "teal",
+        color: "white",
         padding: "1rem",
         borderRadius: "8px",
-        width: "300px",
       }}
     >
+      <p>
+        <b>Debug laatikko:</b>
+      </p>
       <h3>{text}</h3>
     </div>
   )
@@ -69,7 +72,9 @@ const Client = () => {
       // If connection fails, change the connection state
       RTC.current.onconnectionstatechange = () => {
         if (
-          ["disconnected", "failed", "closed"].includes(RTC.current.connectionState)
+          ["disconnected", "failed", "closed"].includes(
+            RTC.current.connectionState
+          )
         ) {
           setConnectionStatus("ended")
           setLocalStream(null)
@@ -81,7 +86,7 @@ const Client = () => {
 
   const lastMessage = useRef(0)
   useEffect(() => {
-
+    
     // Check the message
     for (let i = lastMessage.current; i < messages.length; ++i) {
       const message = messages[i]
@@ -94,10 +99,25 @@ const Client = () => {
       if (message.type == "ICE_CANDIDATE") {
         handleICEcandidate(message.candidate)
       }
+
+      if (message.type == "STOP_SHARING") {
+        stopStream()
+      }
     }
     lastMessage.current = messages.length
 
+    // We want this to run only when we get messages
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages])
+
+  const stopStream = () => {
+    // Stops the stream
+    if (localStream) localStream.getTracks().forEach((track) => track.stop())
+
+    setConnectionStatus("ended")
+    setButtonText("Aloita jakaminen")
+    setLocalStream(null)
+  }
 
   const handleAnswer = async (answer) => {
     const receivedOffer = new RTCSessionDescription({
@@ -124,9 +144,7 @@ const Client = () => {
       username: savedUsername.current,
     })
 
-    setLocalStream(null)
-    setButtonText("Aloita jakaminen")
-    setConnectionStatus("ended")
+    stopStream()
   }
 
   const leaveRoom = () => {
@@ -215,29 +233,24 @@ const Client = () => {
   }
 
   return (
-    <Box display="flex" minH="100vh">
-      {/* jotain */}
-      <Box flex="1" bg="yellow.100" p={4}>
+    <Box display='flex' minH='100vh'>
+      { /* Current stream screen */}
+      <Box flex='1' bg='yellow.100' p={4}>
         <Screen stream={localStream}></Screen>
-        <InfoBox connectionState={connectionStatus}></InfoBox>
       </Box>
 
-      {/* Sivupalkkijutut */}
+      {/* Sidebar */}
       <Box
-        width="200px"
-        bg="green.200"
+        width='200px'
+        bg='green.200'
         p={4}
-        display="flex"
-        flexDirection="column"
-        height="100vh"
+        display='flex'
+        flexDirection='column'
+        height='100vh'
       >
-        {/* Käyttäjälista */}
-        <VStack 
-        spacing={2} 
-        align="stretch" 
-        flex="1" 
-        overflowY="auto"
-        >
+        {/* Button for different actions */}
+        <VStack spacing={2} align='stretch' flex='1' overflowY='auto'>
+          <Box>Terve {savedUsername.current}!</Box>
           <Link to='/'>
             <Button colorPalette="teal" 
                     size="xl" 
@@ -245,13 +258,15 @@ const Client = () => {
                 Poistu huoneesta
             </Button>
           </Link>
-          <Button 
-          colorPalette="teal" 
-          size="xl" 
-          variant="surface"
-          onClick={controlVideoSharing}>
+          <Button
+            colorPalette='teal'
+            size='xl'
+            variant='surface'
+            onClick={controlVideoSharing}
+          >
             {buttonText}
           </Button>
+          <InfoBox connectionState={connectionStatus}></InfoBox>
         </VStack>
       </Box>
     </Box>

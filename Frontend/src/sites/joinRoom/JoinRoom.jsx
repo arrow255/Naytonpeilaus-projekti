@@ -19,7 +19,13 @@ const JoinRoom = () => {
     }
 
     useEffect(() => {
-        if (messages.length < 1) return // Not yet messages to be handled
+        // Run with initial render only
+        const savedUsername = sessionStorage.getItem('username')
+        if (savedUsername) setUsername(savedUsername)
+    }, [])
+
+    useEffect(() => {
+        if (messages.length < 1) return // Ei vielä viestejä käsiteltäväksi
 
         // Katsotaan viesti joka saapui
         const last = messages[messages.length - 1];
