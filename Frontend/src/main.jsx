@@ -10,7 +10,6 @@ import Host from "./sites/host/Host"
 import CreateRoom from "./sites/createRoom/CreateRoom"
 import JoinRoom from "./sites/joinRoom/JoinRoom"
 import App from "./App.jsx"
-import i18n from './i18n'
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
