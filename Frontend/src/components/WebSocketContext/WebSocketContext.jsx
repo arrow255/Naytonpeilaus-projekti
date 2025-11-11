@@ -51,8 +51,11 @@ export const WebSocketProvider = ({ children }) => {
     }
   }
 
+  const clearMessages = () => setMessages([]);
+
+
   return (
-    <WebSocketContext.Provider value={{ sendMessage, isConnected, messages }}>
+    <WebSocketContext.Provider value={{ sendMessage, clearMessages, isConnected, messages }}>
       {children}
     </WebSocketContext.Provider>
   )
