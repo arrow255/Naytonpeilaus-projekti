@@ -4,6 +4,9 @@ import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext
 import { Box, VStack, Text, Button, Heading, QrCode } from "@chakra-ui/react"
 import handleRCPOffer from "./handleMessages.js"
 import config from "@/components/servers.js"
+import { useTranslation } from 'react-i18next';
+
+
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
@@ -13,6 +16,7 @@ import { Link } from "react-router-dom"
 import "./host.css"
 
 const Host = () => {
+  const { t } = useTranslation();
   const [remoteStream, setRemoteStream] = useState(null)
   const { sendMessage, messages } = useWebSocket()
   const [streamingUser, setStreamingUser] = useState(null)
@@ -215,14 +219,14 @@ const Host = () => {
             colorPalette={sidebarView === "kayttajat" ? "teal" : "gray"}
             variant={sidebarView === "kayttajat" ? "solid" : "outline"}
           >
-            Käyttäjät
+            {t('users')}
           </Button>
           <Button
             onClick={() => setSidebarView("asetukset")}
             colorPalette={sidebarView === "asetukset" ? "teal" : "gray"}
             variant={sidebarView === "asetukset" ? "solid" : "outline"}
           >
-            Asetukset
+            {t('settings')}
           </Button>
         </Box>
 
@@ -230,7 +234,7 @@ const Host = () => {
         <Box flex="1" overflowY="auto">
           {sidebarView === "kayttajat" && (
             <VStack spacing={2} align="stretch">
-              <Text fontWeight="bold">Liittyneet käyttäjät:</Text>
+              <Text fontWeight="bold">{t('joinedUsers')}:</Text>
               {sortedUsers.map((user) => (
                 <Box key={user.username} p={2} bg="white" borderRadius="md">
                   <Text>{user.username}</Text>
@@ -241,7 +245,7 @@ const Host = () => {
                         size="xs"
                         onClick={stopUserStream}
                       >
-                        Keskeytä jako
+                        {t('stopSharing')}
                       </Button>
                   )}
 
@@ -252,14 +256,14 @@ const Host = () => {
                         size="xs"
                         onClick={() => handleAnswer(true, user)}
                       >
-                        Aloita jako
+                        {t('acceptShare')}
                       </Button>
                       <Button
                         colorPalette="red"
                         size="xs"
                         onClick={() => handleAnswer(false, user)}
                       >
-                        Hylkää
+                        {t('deny')}
                       </Button>
                     </Box>
                   )}
@@ -271,9 +275,8 @@ const Host = () => {
 
           {sidebarView === "asetukset" && (
             <VStack spacing={2} align="stretch">
-              <Text fontWeight="bold">Asetukset:</Text>
-              <Button>Asetus 1</Button>
-              <Button>Asetus 2</Button>
+              <Button>{t('setting')}</Button>
+              <Button>{t('setting')}</Button>
             </VStack>
           )}
         </Box>
@@ -281,7 +284,7 @@ const Host = () => {
         {/* liitymiskoodi */}
         <Box mt={2} display="flex" justifyContent="center">
           <VStack>
-            <Heading size="2xl">Liittymiskoodi:</Heading>
+            <Heading size="2xl">{t('joinCode')}:</Heading>
             <Heading size="4xl" borderRadius="lg" bg="teal.300" p={2}>
               {roomID}
             </Heading>
@@ -301,7 +304,7 @@ const Host = () => {
         <Box mt={2} display="flex" justifyContent="center">
           <Link to="/">
             <Button colorPalette="teal" size="lg">
-              Takaisin
+              {t('back')}
             </Button>
           </Link>
         </Box>

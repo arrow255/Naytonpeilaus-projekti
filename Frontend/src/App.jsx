@@ -2,6 +2,7 @@
 import { PinInput, Box, VStack, Button, Text, Flex } from "@chakra-ui/react"
 import { Link } from "react-router-dom"
 import { useTranslation } from 'react-i18next';
+import i18n from "./i18n";
 
 
 function App() {
@@ -55,7 +56,7 @@ function App() {
           px={20}
           py={10}
           > 
-            Luo huone   
+            {t('createRoom')}   
           </Button>
           
           <Button 
@@ -66,7 +67,7 @@ function App() {
           py={10} 
           variant="surface"
           >
-            Kirjaudu sisään
+            {t('signIn')}
           </Button>
         </VStack>
       </Box>

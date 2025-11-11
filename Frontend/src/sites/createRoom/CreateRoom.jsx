@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext"
 import { useEffect } from "react"
 import { Box, VStack, Heading, Button, ButtonGroup } from "@chakra-ui/react"
+import { useTranslation } from 'react-i18next';
 
 
 // Styling
@@ -9,6 +10,7 @@ import "./createRoom.css"
 
 
 const CreateRoom = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate()
     const {sendMessage, messages} = useWebSocket();
 
@@ -35,7 +37,7 @@ const CreateRoom = () => {
                     size="xl" 
                     variant="surface"
                     onClick={createRoom}>
-                Luo huone
+                {t('createRoom')}
             </Button>
 
             <Link to="/">
@@ -43,7 +45,7 @@ const CreateRoom = () => {
                         size="xl" 
                         variant="surface"
                         onClick={() => navigate(-1)}>
-                    Takaisin
+                    {t('back')}
                 </Button>
             </Link>
         </Box>

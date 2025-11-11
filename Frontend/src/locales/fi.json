@@ -1,5 +1,22 @@
 {
   "translation": {
-    "welcomeBanner": "Jaa näyttösi helposti!"
+    "welcomeBanner": "Jaa näyttösi helposti!",
+    "createRoom": "Luo huone",
+    "signIn": "Liity huoneeseen",
+    "back": "Takaisin",
+    "joinRoom": "Liity huoneeseen",
+    "roomID": "Liittymiskoodi",
+    "username": "Käyttäjänimi",
+    "greeting": "Hei",
+    "setting": "Asetukset",
+    "deny": "Älä jaa",
+    "exitRoom": "Poistu huoneesta",
+    "users": "Käyttäjät",
+    "settings": "Asetukset",
+    "stopSharing": "Keskeytä jako",
+    "acceptShare": "Hyväksy jako",
+    "joinCode": "Liittymiskoodi",
+    "joinedUsers": "Liittyneet käyttäjät",
+    "startSharing": "Aloita jako"
   }
 }

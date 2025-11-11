@@ -1,5 +1,22 @@
 {
   "translation": {
-    "welcomeBanner": "Share your screen easily!"
+    "welcomeBanner": "Share your screen easily!",
+    "createRoom": "Create a room",
+    "signIn": "Join room",
+    "back": "Back",
+    "joinRoom": "Join room",
+    "roomID": "Join code",
+    "username": "Username",
+    "greeting": "Hello",
+    "setting": "setting",
+    "deny": "Dont share",
+    "exitRoom": "Leave room",
+    "users": "Users",
+    "settings": "Settings",
+    "stopSharing": "Stop sharing",
+    "acceptShare": "Accept sharing",
+    "joinCode": "Join code",
+    "joinedUsers": "Joined users",
+    "startSharing": "Start sharing"
   }
 }
