@@ -4,12 +4,16 @@ import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext
 import { useRef } from "react"
 import config from "@/components/servers.js"
 import { Box, VStack, Button } from "@chakra-ui/react"
+import { useTranslation } from 'react-i18next';
+
+
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
 
 // Styling
 import "./client.css"
+
 
 const InfoBox = ({ connectionState }) => {
   const messages = {
@@ -39,6 +43,7 @@ const InfoBox = ({ connectionState }) => {
 }
 
 const Client = () => {
+  const { t } = useTranslation();
   const RTC = useRef(null)
   const pendingCandidates = useRef([])
 
@@ -49,7 +54,7 @@ const Client = () => {
   const { sendMessage, messages } = useWebSocket()
 
   // UI changes
-  const [buttonText, setButtonText] = useState("Aloita jakaminen")
+  const [buttonText, setButtonText] = useState(t('startSharing'));
 
   // Track connection status
   const [connectionStatus, setConnectionStatus] = useState("idle")
@@ -115,7 +120,7 @@ const Client = () => {
     if (localStream) localStream.getTracks().forEach((track) => track.stop())
 
     setConnectionStatus("ended")
-    setButtonText("Aloita jakaminen")
+    setButtonText(t('startSharing'))
     setLocalStream(null)
   }
 
@@ -197,7 +202,7 @@ const Client = () => {
 
     // Set the local stream so user sees his stream
     setLocalStream(stream)
-    setButtonText("Lopeta näytön jakaminen")
+    setButtonText(t('stopSharing'))
     setConnectionStatus("waiting")
 
     // Add tracks from Local stream to peer connection
@@ -250,12 +255,12 @@ const Client = () => {
       >
         {/* Button for different actions */}
         <VStack spacing={2} align='stretch' flex='1' overflowY='auto'>
-          <Box>Terve {savedUsername.current}!</Box>
+          <Box>{t('greeting')} {savedUsername.current}!</Box>
           <Link to='/'>
             <Button colorPalette="teal" 
                     size="xl" 
                     variant="surface" onClick={leaveRoom}>
-                Poistu huoneesta
+                {t('exitRoom')}
             </Button>
           </Link>
           <Button

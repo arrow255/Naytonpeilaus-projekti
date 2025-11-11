@@ -2,12 +2,16 @@ import { Link, useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react";
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext";
 import { Box, Button, Input } from "@chakra-ui/react"
+import { useTranslation } from 'react-i18next';
+
+
 
 // Styling
 import "./joinRoom.css"
 
 
 const JoinRoom = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate()
     const [roomID, setRoomID] = useState('')
     const [username, setUsername] = useState('')
@@ -44,20 +48,18 @@ const JoinRoom = () => {
     return (
         <>
         <Box bg="yellow.100" minH="100vh" p={4}>
-            <h1>This is the Join room site</h1>
-
             <div id='joinRoomForm'>
-                <label>Huoneen ID</label>
+                <label>{t('roomID')}</label>
                 <Input value={roomID} onChange={(event) => setRoomID(event.target.value)}/>
 
-                <label>käyttäjänimi</label>
+                <label>{t('username')}</label>
                 <Input value={username} onChange={(event) => setUsername(event.target.value)}/>
 
                 <Button colorPalette="teal" 
                         size="xl" 
                         variant="surface"
                         onClick={joinRoom}>
-                    Liity huoneeseen
+                    {t('joinRoom')}
                 </Button>
             </div>
 
@@ -67,7 +69,7 @@ const JoinRoom = () => {
 
             <Link to="/">
                 <button>
-                    Back
+                    {t('back')}
                 </button>
             </Link>
         </Box>    
