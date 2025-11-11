@@ -6,14 +6,10 @@ import handleRCPOffer from "./handleMessages.js"
 import config from "@/components/servers.js"
 import { useTranslation } from 'react-i18next';
 
-
-
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
 import { Link } from "react-router-dom"
 
-// Styling
-import "./host.css"
 
 const Host = () => {
   const { t } = useTranslation();

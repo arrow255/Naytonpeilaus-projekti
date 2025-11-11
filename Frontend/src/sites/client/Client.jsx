@@ -6,13 +6,9 @@ import config from "@/components/servers.js"
 import { Box, VStack, Button } from "@chakra-ui/react"
 import { useTranslation } from 'react-i18next';
 
-
-
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
 
-// Styling
-import "./client.css"
 
 
 const InfoBox = ({ connectionState }) => {
