@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import Screen from "../../components/Screen/Screen.jsx"
 import { Link } from "react-router-dom"
 
+const SERVER_PATH = process.env.NODE_ENV === 'development' ? "ws://localhost:8000/ws/" : "wss://" + location.hostname + "/ws/"
 
 const Host = () => {
   const { t } = useTranslation();
@@ -289,7 +290,7 @@ const Host = () => {
 
         {/* QR koodi liitymislinkki */}
         <Box mt={2} display="flex" justifyContent="center">
-          <QrCode.Root value={"http://localhost:5173/room/" + roomID}>
+          <QrCode.Root value={SERVER_PATH}>
             <QrCode.Frame>
               <QrCode.Pattern />
             </QrCode.Frame>
