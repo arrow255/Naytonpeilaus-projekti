@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cp -r dist/* ../Backend/app/dist/",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
