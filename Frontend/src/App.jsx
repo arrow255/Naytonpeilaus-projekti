@@ -1,5 +1,5 @@
 // src/App.jsx
-import { PinInput, Input, Box, VStack, Button, Text, Flex, Separator } from "@chakra-ui/react"
+import { PinInput, Input, Box, VStack, Button, Text, Flex, Separator, Alert, CloseButton } from "@chakra-ui/react"
 import { useWebSocket } from "./components/WebSocketContext/WebSocketContext"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from 'react-i18next'
@@ -8,6 +8,7 @@ import i18n from "./i18n"
 
 
 function App() {
+  const [show, setShow] = useState(true);
   const [pin, setPin] = useState("")
   const [username, setUsername] = useState("")
   const [errorMessage, setErrorMessage] = useState(null)
@@ -178,8 +179,17 @@ function App() {
               {t('createRoom')}   
           </Button>
 
-
         </VStack>
+          {/* footer-banner */}
+        <Box position="fixed" bottom="0" left="0" w="100%" zIndex={1000}>
+          <Alert.Root status="info" borderRadius="0">
+            <Alert.Indicator />
+            <Alert.Title>
+              {t('privacyNotice')}
+            </Alert.Title>
+            <CloseButton position="absolute" top="8px" right="8px" />
+          </Alert.Root>
+        </Box>
       </Box>
     </Box>
   )

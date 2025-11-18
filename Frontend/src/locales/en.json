@@ -19,7 +19,8 @@
     "joinedUsers": "Joined users",
     "startSharing": "Start sharing",
     "instructions": "Join room by providing code and username",
-    "createRoomInstructions": "Or create a room",
+    "createRoomInstructions": "Or",
+    "privacyNotice": "User information is not stored. This site does not use cookies. Your shared screen doesn't pass through any servers.",
 
     "pinError": "Pin length must be 4",
     "usernameTooShortError": "Username must be atleast 3 characters",
