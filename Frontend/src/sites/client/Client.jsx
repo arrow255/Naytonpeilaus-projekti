@@ -39,7 +39,6 @@ const InfoBox = ({ connectionState }) => {
 
 const Client = () => {
   const { t } = useTranslation();
-  const { t } = useTranslation();
   const RTC = useRef(null)
   const pendingCandidates = useRef([])
   const navigate = useNavigate()

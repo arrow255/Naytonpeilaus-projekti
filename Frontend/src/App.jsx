@@ -4,6 +4,7 @@ import { useWebSocket } from "./components/WebSocketContext/WebSocketContext"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from 'react-i18next'
 import { useState, useEffect, useRef } from "react"
+import { Link } from "react-router-dom"
 import i18n from "./i18n"
 
 
@@ -189,17 +190,6 @@ function App() {
             py={8}
             > 
               {t('createRoom')}   
-          </Button>
-          
-          <Button 
-          as={Link} to="/join_room" 
-          colorPalette="teal" 
-          fontSize = {30}
-          px={10}
-          py={10} 
-          variant="surface"
-          >
-            {t('signIn')}
           </Button>
         </VStack>
           {/* privacy notice */}
