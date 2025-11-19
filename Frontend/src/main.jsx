@@ -7,8 +7,6 @@ import { Provider } from "@/components/ui/provider"
 // Sites
 import Client from "./sites/client/Client"
 import Host from "./sites/host/Host"
-import CreateRoom from "./sites/createRoom/CreateRoom"
-import JoinRoom from "./sites/joinRoom/JoinRoom"
 import App from "./App.jsx"
 import i18n from './i18n'
 
@@ -21,8 +19,6 @@ createRoot(document.getElementById("root")).render(
             <Route path='/host/:roomID' element={<Host />} />
             <Route path='/room/:roomID' element={<Client />} />
             <Route path='/' element={<App />} />
-            <Route path='/create_room' element={<CreateRoom />} />
-            <Route path='/join_room' element={<JoinRoom />} />
           </Routes>
         </BrowserRouter>
       </WebSocketProvider>

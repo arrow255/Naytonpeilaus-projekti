@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react"
 
 const WebSocketContext = createContext(null)
-const SERVER_PATH = process.env.NODE_ENV === 'development' ? "ws://localhost:8000/ws/" : "wss://" + location.hostname + "/ws/";
+const SERVER_PATH = process.env.NODE_ENV === 'development' ? "ws://localhost:8000/ws/" : "wss://" + location.hostname + "/ws/"
 
 export const WebSocketProvider = ({ children }) => {
   const wsRef = useRef(null)
@@ -51,8 +51,11 @@ export const WebSocketProvider = ({ children }) => {
     }
   }
 
+  const clearMessages = () => setMessages([]);
+
+
   return (
-    <WebSocketContext.Provider value={{ sendMessage, isConnected, messages }}>
+    <WebSocketContext.Provider value={{ sendMessage, clearMessages, isConnected, messages }}>
       {children}
     </WebSocketContext.Provider>
   )

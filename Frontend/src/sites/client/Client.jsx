@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext.jsx"
 import { useRef } from "react"
@@ -6,13 +6,8 @@ import config from "@/components/servers.js"
 import { Box, VStack, Button } from "@chakra-ui/react"
 import { useTranslation } from 'react-i18next';
 
-
-
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
-
-// Styling
-import "./client.css"
 
 
 const InfoBox = ({ connectionState }) => {
@@ -46,12 +41,13 @@ const Client = () => {
   const { t } = useTranslation();
   const RTC = useRef(null)
   const pendingCandidates = useRef([])
+  const navigate = useNavigate()
 
   const savedUsername = useRef(sessionStorage.getItem("username"))
 
   // WebRTC
   const [localStream, setLocalStream] = useState(null)
-  const { sendMessage, messages } = useWebSocket()
+  const { sendMessage, messages, clearMessages } = useWebSocket()
 
   // UI changes
   const [buttonText, setButtonText] = useState(t('startSharing'));
@@ -107,6 +103,11 @@ const Client = () => {
 
       if (message.type == "STOP_SHARING") {
         stopStream()
+      }
+
+      if (message.type == "LEFT_ROOM") {
+        clearMessages()
+        navigate('/')
       }
     }
     lastMessage.current = messages.length
@@ -254,7 +255,7 @@ const Client = () => {
         height='100vh'
       >
         {/* Button for different actions */}
-        <VStack spacing={2} align='stretch' flex='1' overflowY='auto'>
+        <VStack spacing={2} align='stretch' flex='1' overflowY='auto' alignItems="center">
           <Box>{t('greeting')} {savedUsername.current}!</Box>
           <Link to='/'>
             <Button colorPalette="teal" 
