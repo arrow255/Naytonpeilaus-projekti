@@ -299,11 +299,9 @@ const Host = () => {
 
         {/* Takaisin nappi */}
         <Box mt={2} display="flex" justifyContent="center">
-          <Link to="/">
-            <Button colorPalette="teal" size="lg">
-              {t('back')}
-            </Button>
-          </Link>
+          <Button as={Link} to="/" colorPalette="teal" size="lg">
+            {t('back')}
+          </Button>
         </Box>
       </Box>
     </Box>

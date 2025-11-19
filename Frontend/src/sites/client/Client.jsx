@@ -255,7 +255,7 @@ const Client = () => {
         height='100vh'
       >
         {/* Button for different actions */}
-        <VStack spacing={2} align='stretch' flex='1' overflowY='auto'>
+        <VStack spacing={2} align='stretch' flex='1' overflowY='auto' alignItems="center">
           <Box>{t('greeting')} {savedUsername.current}!</Box>
           <Link to='/'>
             <Button colorPalette="teal" 

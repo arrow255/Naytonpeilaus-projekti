@@ -1,5 +1,5 @@
 // src/App.jsx
-import { PinInput, Input, Box, VStack, Button, Text, Flex, Separator } from "@chakra-ui/react"
+import { PinInput, Input, Box, VStack, Button, Text, Flex, Separator, Alert, CloseButton } from "@chakra-ui/react"
 import { useWebSocket } from "./components/WebSocketContext/WebSocketContext"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from 'react-i18next'
@@ -8,6 +8,7 @@ import i18n from "./i18n"
 
 
 function App() {
+  const [show, setShow] = useState(true);
   const [pin, setPin] = useState("")
   const [username, setUsername] = useState("")
   const [errorMessage, setErrorMessage] = useState(null)
@@ -128,18 +129,28 @@ function App() {
           <PinInput.Root type="alphanumeric" onValueChange={(value) => setPin(value)} placeholder="" >
             <PinInput.HiddenInput />
             <PinInput.Control>
-              <PinInput.Input index={0} w="80px" h="80px" fontSize="3xl" borderWidth="3px" borderColor="black" />
+              <PinInput.Input index={0} w="80px" h="80px" fontSize="3xl" borderWidth="2px" borderColor="black" />
               <Box padding="2"></Box>
-              <PinInput.Input index={1} w="80px" h="80px" fontSize="3xl" borderWidth="3px" borderColor="black"/>
+              <PinInput.Input index={1} w="80px" h="80px" fontSize="3xl" borderWidth="2px" borderColor="black"/>
               <Box padding="2"></Box>
-              <PinInput.Input index={2} w="80px" h="80px" fontSize="3xl" borderWidth="3px" borderColor="black"/>
+              <PinInput.Input index={2} w="80px" h="80px" fontSize="3xl" borderWidth="2px" borderColor="black"/>
               <Box padding="2"></Box>
-              <PinInput.Input index={3} w="80px" h="80px" fontSize="3xl" borderWidth="3px" borderColor="black"/>
+              <PinInput.Input index={3} w="80px" h="80px" fontSize="3xl" borderWidth="2px" borderColor="black"/>
             </PinInput.Control>
           </PinInput.Root>
           <Box padding="2"></Box>
           
-          <Input placeholder="Käyttäjänimi" width={400} value={username} onChange={(e) => setUsername(e.target.value)}/>
+          <Input
+            placeholder="Käyttäjänimi"
+            width={400}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            bg="transparent"
+            color="black"
+            _placeholder={{ color: "black" }}
+            border="1.3px solid black"
+          />
+
 
           <Box padding="4" color="black" fontSize="xl" justifyContent="center" alignItems="center"></Box>
           
@@ -178,8 +189,20 @@ function App() {
               {t('createRoom')}   
           </Button>
 
-
         </VStack>
+          {/* privacy notice */}
+        {show && (  
+          <Box position="fixed" bottom="0" left="0" w="100%" zIndex={1000}>
+            <Alert.Root status="info" borderRadius="0">
+              <Alert.Indicator />
+              <Alert.Title>
+                {t('privacyNotice')}
+              </Alert.Title>
+              <CloseButton position="absolute" top="8px" right="8px" onClick={() => setShow(false)} />
+            </Alert.Root>
+          </Box>
+        )}
+
       </Box>
     </Box>
   )

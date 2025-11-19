@@ -19,9 +19,10 @@
     "joinedUsers": "Liittyneet käyttäjät",
     "startSharing": "Aloita jako",
     "instructions": "Liity huoneeseen syöttämällä liittymiskoodi ja käyttäjänimi",
-    "createRoomInstructions": "Tai luo huone",
+    "createRoomInstructions": "Tai",
+    "privacyNotice": "Käyttäjien tietoja ei tallenneta mihinkään. Sivustolla ei käytetä evästeitä. Jaetun näytön kuva kulkee suoraan jakajalta huoneen omistajalle.",
 
-    "pinError": "Koodin tulee olla neljän pitkä",
+    "pinError": "Koodin tulee olla neljä merkkiä pitkä",
     "usernameTooShortError": "Käyttäjänimen tulee olla vähintään 3 merkkiä pitkä",
     "usernameAlreadyExists": "Käyttäjänimi on jo käytössä",
     "roomDoesntExists": "Annetulla koodilla ei löydy huonetta"
