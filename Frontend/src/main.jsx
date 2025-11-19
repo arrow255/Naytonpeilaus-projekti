@@ -8,6 +8,7 @@ import { Provider } from "@/components/ui/provider"
 import Client from "./sites/client/Client"
 import Host from "./sites/host/Host"
 import App from "./App.jsx"
+import i18n from './i18n'
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

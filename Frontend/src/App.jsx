@@ -119,6 +119,8 @@ function App() {
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="48vh">
         
         
+        
+        
         <VStack spacing={7} align="center">
           {/* pin koodi paikka */}
           <Box width="100%" padding="4" color="black" fontSize="2xl">
@@ -188,7 +190,17 @@ function App() {
             > 
               {t('createRoom')}   
           </Button>
-
+          
+          <Button 
+          as={Link} to="/join_room" 
+          colorPalette="teal" 
+          fontSize = {30}
+          px={10}
+          py={10} 
+          variant="surface"
+          >
+            {t('signIn')}
+          </Button>
         </VStack>
           {/* privacy notice */}
         {show && (  
