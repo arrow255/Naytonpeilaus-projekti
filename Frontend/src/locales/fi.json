@@ -22,7 +22,7 @@
     "createRoomInstructions": "Tai",
     "privacyNotice": "Käyttäjien tietoja ei tallenneta mihinkään. Sivustolla ei käytetä evästeitä. Jaetun näytön kuva kulkee suoraan jakajalta huoneen omistajalle.",
     "usernameInputPlaceholder": "Syötä käyttäjänimesi tähän...",
-
+    "fullScreenMode": "Kokonäyttötila",
 
     "pinError": "Koodin tulee olla neljä merkkiä pitkä",
     "usernameTooShortError": "Käyttäjänimen tulee olla vähintään 3 merkkiä pitkä",

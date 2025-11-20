@@ -18,10 +18,13 @@ const Host = () => {
   const { sendMessage, messages, clearMessages } = useWebSocket()
   const [streamingUser, setStreamingUser] = useState(null)
   const [sidebarView, setSidebarView] = useState("kayttajat")
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   const [users, setUsers] = useState([])
   const { roomID } = useParams()
   const navigate = useNavigate()
+  const screenRef = useRef(null)
+
 
   const lastMessage = useRef(0)
   useEffect(() => {
@@ -95,6 +98,18 @@ const Host = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages])
 
+  useEffect(() => {
+    // Handle fullscreen change events
+    const handleFsChange = () => {
+      const fsElement = document.fullscreenElement
+      setIsFullscreen(fsElement === screenRef.current)
+    }
+
+    document.addEventListener("fullscreenchange", handleFsChange)
+    return () => document.removeEventListener("fullscreenchange", handleFsChange)
+  }, [])
+
+
   const sortedUsers = useMemo(() => {
     // This function returns the sorted version of users
     if (!users) return [];
@@ -113,7 +128,7 @@ const Host = () => {
       // 3. alphabetical for the rest
       return a.username.localeCompare(b.username);
     });
-  }, [users, streamingUser]);
+  }, [users, streamingUser])
 
   const updateICEcandidates = (message) => {
     let user = users.find((u) => u.username == message.username)
@@ -195,16 +210,26 @@ const Host = () => {
   }
 
   const goBack = () => {
+    // Function for going back to home page
     navigate("/")
     clearMessages()
   }
 
-  
+  const fullScreen = () => {
+    const screenElement = screenRef.current
+    console.log(screenElement)
+    screenElement.p = 0
+    screenElement.requestFullscreen().then(() => {
+      setIsFullscreen(true)
+    })
+  }
+
+
   return (
     <Box display="flex" minH="100vh">
       {/* Jaettu näyttö */}
-      <Box flex="1" bg="yellow.100" p={4}>
-        <Screen stream={remoteStream} />
+      <Box flex="1" bg="yellow.100" ref={screenRef} p={isFullscreen ? 0 : 4}>
+          <Screen stream={remoteStream} />
       </Box>
 
       {/* Sivupalkkijutut */}
@@ -303,6 +328,16 @@ const Host = () => {
             </QrCode.Frame>
           </QrCode.Root>
         </Box>
+
+
+        {/* Kokonäyttötila */}
+        <Box mt={2} display="flex" justifyContent="center">
+          <Button onClick={fullScreen} colorPalette="teal" size="lg">
+            {t('fullScreenMode')}
+          </Button>
+        </Box>
+
+
 
         {/* Takaisin nappi */}
         <Box mt={2} display="flex" justifyContent="center">
