@@ -21,6 +21,8 @@
     "instructions": "Join room by providing code and username",
     "createRoomInstructions": "Or",
     "privacyNotice": "User information is not stored. This site does not use cookies. Your shared screen doesn't pass through any servers.",
+    "usernameInputPlaceholder": "Enter your username here...",
+
 
     "pinError": "Pin length must be 4",
     "usernameTooShortError": "Username must be atleast 3 characters",
