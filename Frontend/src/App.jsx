@@ -144,7 +144,7 @@ function App() {
           <Box padding="2"></Box>
           
           <Input
-            placeholder="Käyttäjänimi"
+            placeholder={t('usernameInputPlaceholder')}
             width={400}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
