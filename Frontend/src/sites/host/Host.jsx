@@ -4,23 +4,24 @@ import { useWebSocket } from "../../components/WebSocketContext/WebSocketContext
 import { Box, VStack, Text, Button, Heading, QrCode } from "@chakra-ui/react"
 import handleRCPOffer from "./handleMessages.js"
 import config from "@/components/servers.js"
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from "react-router-dom"
 
 // Components
 import Screen from "../../components/Screen/Screen.jsx"
-import { Link } from "react-router-dom"
 
 const SERVER_PATH = process.env.NODE_ENV === 'development' ? "ws://localhost:8000/ws/" : "wss://" + location.hostname + "/ws/"
 
 const Host = () => {
   const { t } = useTranslation();
   const [remoteStream, setRemoteStream] = useState(null)
-  const { sendMessage, messages } = useWebSocket()
+  const { sendMessage, messages, clearMessages } = useWebSocket()
   const [streamingUser, setStreamingUser] = useState(null)
   const [sidebarView, setSidebarView] = useState("kayttajat")
 
   const [users, setUsers] = useState([])
   const { roomID } = useParams()
+  const navigate = useNavigate()
 
   const lastMessage = useRef(0)
   useEffect(() => {
@@ -193,6 +194,12 @@ const Host = () => {
     setStreamingUser(null)
   }
 
+  const goBack = () => {
+    navigate("/")
+    clearMessages()
+  }
+
+  
   return (
     <Box display="flex" minH="100vh">
       {/* Jaettu näyttö */}
@@ -299,7 +306,7 @@ const Host = () => {
 
         {/* Takaisin nappi */}
         <Box mt={2} display="flex" justifyContent="center">
-          <Button as={Link} to="/" colorPalette="teal" size="lg">
+          <Button onClick={goBack} colorPalette="teal" size="lg">
             {t('back')}
           </Button>
         </Box>
