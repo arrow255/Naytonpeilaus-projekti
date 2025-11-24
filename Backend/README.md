@@ -132,17 +132,16 @@ Server forwards the request to host:
 Client sends:
 ```json
 {
-  "type": "STOP_SHARING"
+  "type": "STOP_SHARING",
+  "username": "client-name" # Required if sender is the host
 }
 ```
-Currently, if sender is the host, server broadcasts to all users:
+If sender is the host, server forwards the request to the user:
 ```json
 {
   "type": "STOP_SHARING"
 }
 ```
-In the future this will most likely be changed to only notify the user who was sharing.
-Don't rely on this behavior.
 
 If sender is not the host, server forwards the request to host:
 ```json

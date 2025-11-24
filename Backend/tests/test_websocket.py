@@ -15,6 +15,7 @@ def test_creating_room():
         response = websocket.receive_json()
         assert response["type"] == "ROOM_CREATED"
         assert "roomid" in response
+    assert not app.state.room_manager._rooms
 
 def test_joining_room():
     with client.websocket_connect("/ws/") as websocket1:
@@ -39,6 +40,7 @@ def test_joining_room():
             host_notification = websocket1.receive_json()
             assert host_notification["type"] == "USER_JOINED"
             assert host_notification["username"] == "client-name"
+    assert not app.state.room_manager._rooms
 
 @pytest.fixture
 def create_room():
@@ -51,6 +53,7 @@ def create_room():
         assert response["type"] == "ROOM_CREATED"
         roomid = response["roomid"]
         yield roomid, websocket
+    assert not app.state.room_manager._rooms
 
 @pytest.fixture
 def join_room(create_room):
