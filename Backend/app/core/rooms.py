@@ -20,7 +20,6 @@ class Room:
         if ws == self.host:
             self.host = None
             logger.debug(f"Host removed from room {self.roomid}")
-            return
         if user.name in self.users:
             logger.debug(f"User removed from room {self.roomid}: {user.name}")
             del self.users[user.name]

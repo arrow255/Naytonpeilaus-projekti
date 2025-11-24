@@ -6,9 +6,10 @@ from fastapi.staticfiles import StaticFiles
 import logging
 import os
 
+PRODUCTION = os.getenv("FASTAPI_ENV", "").lower() == "production"
 logging.basicConfig(
     format="%(asctime)s :: %(message)s",
-    level=logging.DEBUG
+    level=logging.DEBUG if not PRODUCTION else logging.INFO
     )
 
 
@@ -16,7 +17,6 @@ app = FastAPI()
 app.state.room_manager = RoomManager()
 app.include_router(ws_router)
 
-PRODUCTION = os.getenv("FASTAPI_ENV", "").lower() == "production"
 
 if PRODUCTION:
     app.mount('/', StaticFiles(directory='app/dist', html=True), name='dist')
